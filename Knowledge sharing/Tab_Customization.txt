@@ -1,0 +1,85 @@
+How to add new Tab and Tab Navigation with a button
+
+First go to below path:
+C:\Users\ysowmya\Documents\hybrislatest\hybris\bin\ext-vodafone\vodafonebackoffice\resources
+open vodafonebackoffice-backoffice-config.xml
+add below code for adding a tab:
+
+<!-- Code to Add new Tab New Changes START-->
+	
+	<!--Editor-Area -->
+	 <context merge-by="type" parent="AbstractOrder" type="Order" component="editor-area">
+        <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+            <editorArea:tab name="hmc.order.download.tab">               
+				<editorArea:section name="hmc.order.download.section">
+					<editorArea:panel>
+						<editorArea:attribute
+							editor="com.hybris.cockpitng.editor.extendedmultireferenceeditor"
+							qualifier="entries" readonly="true">
+							<editorArea:editor-parameter>
+								<editorArea:name>listConfigContext</editorArea:name>
+								<editorArea:value>referenceListViewOrderEntries
+								</editorArea:value>
+							</editorArea:editor-parameter>
+							<editorArea:editor-parameter>
+								<editorArea:name>disableDisplayingDetails</editorArea:name>
+								<editorArea:value>true</editorArea:value>
+							</editorArea:editor-parameter>
+							<editorArea:editor-parameter>
+								<editorArea:name>disableRemoveReference</editorArea:name>
+								<editorArea:value>true</editorArea:value>
+							</editorArea:editor-parameter>
+						</editorArea:attribute>
+					</editorArea:panel>
+				</editorArea:section>
+				
+            </editorArea:tab>
+        </editorArea:editorArea>
+    </context>
+	
+	<context merge-by="type" parent="GenericItem" type="OrderEntry" component="referenceListViewOrderEntries">
+		<list-view:list-view xmlns:list-view="http://www.hybris.com/cockpitng/component/listView">
+			<list-view:column qualifier="product.code" label="ordermanagementbackoffice.order.hierarchy.productcode" />	
+			<list-view:column qualifier="product.name" label="ordermanagementbackoffice.order.hierarchy.productname" />
+			<list-view:column spring-bean="downloadButtonCellRenderer" label="ordermanagementbackoffice.order.hierarchy.actions" />
+		</list-view:list-view>
+	</context>
+	
+<!-- Code to Add new Tab New Changes END-->
+
+Next step  C:\Users\ysowmya\Documents\hybrislatest\hybris\bin\ext-vodafone\vodafonebackoffice\resources
+open vodafonebackoffice-backoffice-spring.xml
+add below code:
+<!---Changes---->
+<bean id="downloadButtonCellRenderer" class="hu.vodafone.renderers.VodafoneDownloadButtonCellRenderer" />
+<!---END---->
+
+Step 3:
+
+go to below path
+C:\Users\ysowmya\Documents\hybrislatest\hybris\bin\ext-vodafone\vodafonebackoffice\resources\vodafonebackoffice-backoffice-labels
+
+open--> labels.properties
+
+add below code:
+ordermanagementbackoffice.order.hierarchy.actions=Download Contract
+
+
+step 4:
+go to below path
+
+C:\Users\ysowmya\Documents\hybrislatest\hybris\bin\ext-vodafone\vodafonebackoffice\backoffice\src\hu\vodafone\
+
+create a folder with name:renderers
+
+inside create a java class with name:VodafoneDownloadButtonCellRenderer.java
+
+-----------------------------------------------------------------------------------------
+
+
+Images are in below location
+
+C:\Users\ysowmya\Documents\hybrislatest\hybris\bin\ext-backoffice\ordermanagementbackoffice\resources\cockpitng\cng\css\images
+
+CSS file is in below location
+C:\Users\ysowmya\Documents\hybrislatest\hybris\bin\ext-backoffice\ordermanagementbackoffice\resources\cockpitng\cng\css

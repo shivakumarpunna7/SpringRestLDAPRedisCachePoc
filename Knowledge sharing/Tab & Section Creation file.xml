@@ -1,0 +1,210 @@
+To Create a new tab for download and add download button and print flag in it.
+
+Step 1:
+
+Go to the below link 
+
+C:\hybris5700\hybris\bin\ext-vodafone\vodafonebackoffice\resources
+
+Open  : vodafonebackoffice-backoffice-config.xml
+
+Add the below Changes 
+<!--To Add a new tab -->
+<context merge-by="type" parent="GenericItem" type="AbstractOrder" component="editor-area">
+        <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+            <editorArea:tab name="hmc.order.download.tab">               
+				<editorArea:section name="hmc.order.download.section">
+					<editorArea:panel>
+						<editorArea:attribute
+							editor="com.hybris.cockpitng.editor.extendedmultireferenceeditor"
+							qualifier="contractDocuments" readonly="true">
+							<editorArea:editor-parameter>
+								<editorArea:name>listConfigContext</editorArea:name>
+								<editorArea:value>referenceListViewContractDocuments
+								</editorArea:value>
+							</editorArea:editor-parameter>
+							<editorArea:editor-parameter>
+								<editorArea:name>disableDisplayingDetails</editorArea:name>
+								<editorArea:value>true</editorArea:value>
+							</editorArea:editor-parameter>							
+							<editorArea:editor-parameter>
+								<editorArea:name>disableRemoveReference</editorArea:name>
+								<editorArea:value>true</editorArea:value>
+							</editorArea:editor-parameter>	
+							</editorArea:attribute>																								
+					</editorArea:panel>
+										
+				</editorArea:section>
+				<!--To Add a new Section for Print flag in the same tab-->
+				<editorArea:section name="hmc.order.print.section">
+                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="neededPrintedContracts"/>
+                </editorArea:section>
+            </editorArea:tab>
+        </editorArea:editorArea>
+    </context>
+	
+	
+	
+	<context merge-by="type" parent="GenericItem" type="ContractDocument" component="referenceListViewContractDocuments">
+		<list-view:list-view xmlns:list-view="http://www.hybris.com/cockpitng/component/listView">
+			<list-view:column qualifier="documentId" label="ordermanagementbackoffice.order.hierarchy.documentid" />	
+			<list-view:column qualifier="documentType" label="ordermanagementbackoffice.order.hierarchy.documenttype" />
+			<list-view:column qualifier="documentGenerationDate" label="ordermanagementbackoffice.order.hierarchy.documentdenerationdate" />
+			<list-view:column qualifier="contractNumber" label="ordermanagementbackoffice.order.hierarchy.contractnumber" />
+			<list-view:column spring-bean="downloadButtonCellRenderer" label="ordermanagementbackoffice.order.hierarchy.actions" />
+		</list-view:list-view>
+	</context>
+	
+	
+Step 2 :
+
+go to below path
+
+C:\hybris5700\hybris\bin\ext-vodafone\vodafonebackoffice\backoffice\src\hu\vodafone\
+
+create a folder with name:renderers
+
+inside create a java class with name:VodafoneDownloadButtonCellRenderer.java	
+
+This contain the logic for the download button for the below column
+<list-view:column spring-bean="downloadButtonCellRenderer" label="ordermanagementbackoffice.order.hierarchy.actions" />
+
+<!--Download Button Cell Renderer START-->
+
+
+package hu.vodafone.renderers;
+
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zkoss.zul.Button;
+import org.zkoss.zul.Listcell;
+import org.zkoss.zul.Messagebox;
+
+import com.hybris.cockpitng.core.config.impl.jaxb.listview.ListColumn;
+import com.hybris.cockpitng.dataaccess.facades.type.DataType;
+import com.hybris.cockpitng.engine.WidgetInstanceManager;
+import com.hybris.cockpitng.widgets.common.WidgetComponentRenderer;
+
+import de.hybris.platform.core.model.order.AbstractOrderModel;
+import hu.vodafone.core.model.ContractDocumentModel;
+
+
+public class VodafoneDownloadButtonCellRenderer implements WidgetComponentRenderer<Listcell, ListColumn, ContractDocumentModel>
+{
+	private static final Logger LOGGER = LoggerFactory.getLogger(VodafoneDownloadButtonCellRenderer.class);
+	public static final String CANCEL_BUTTON = "cancelorder";
+
+
+	public void render(final Listcell parent, final ListColumn columnConfiguration, final ContractDocumentModel object,
+			final DataType dataType, final WidgetInstanceManager widgetInstanceManger)
+	{
+		LOGGER.debug("Rendering download contract order button.");
+		final Button button = new Button();
+		final AbstractOrderModel abstractOrderModel = object.getAbstractOrder();
+		final Boolean print = abstractOrderModel.isNeededPrintedContracts();
+
+		final String buttonClass = "cancelorder";
+		button.setParent(parent);
+		button.setSclass(buttonClass);
+		button.addEventListener("onClick", event -> {
+			this.downloadVodafoneContractDocument(object.getDocumentId());
+		});
+	}
+
+	protected void downloadVodafoneContractDocument(final String documentId) throws MalformedURLException, IOException
+	{
+		LOGGER.debug("++++++++++++++++++downloadVodafoneContractDocument");
+
+
+		final java.io.BufferedInputStream in = new java.io.BufferedInputStream(
+				new java.net.URL("http://www.drofus.no/en/assets/documents/user%20documentation/dRofus-XFDesigner-UserGuide.pdf")
+						.openStream());
+
+		final java.io.FileOutputStream fos = new java.io.FileOutputStream("C:/Users/ysowmya/Downloads/test.pdf");
+
+		final java.io.BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
+		final byte data[] = new byte[1024];
+		while (in.read(data, 0, 1024) >= 0)
+		{
+			bout.write(data);
+		}
+		bout.close();
+		in.close();
+
+		Messagebox.show("Download Success");
+	}
+}
+
+
+<!--Download Button Cell Renderer END-->
+	
+
+
+Step 3 :
+
+Add the java class in the Spring xml
+
+
+Go to the below link 
+
+C:\hybris5700\hybris\bin\ext-vodafone\vodafonebackoffice\resources
+
+Open  : vodafonebackoffice-backoffice-spring.xml
+
+Add the below Changes 
+
+<bean id="downloadButtonCellRenderer" class="hu.vodafone.renderers.VodafoneDownloadButtonCellRenderer" />
+
+Step 4:
+
+Define the labels used in config.xml in the properties file.
+
+go to below path
+C:\hybris5700\hybris\bin\ext-vodafone\vodafonebackoffice\resources\vodafonebackoffice-backoffice-labels
+
+open--> labels.properties
+	
+###CHANGES###
+##ordermanagementbackoffice.order.hierarchy.actions=Download Contract##
+
+##Trying##
+ordermanagementbackoffice.order.hierarchy.DownloadFlag=Print Flag
+##Trying END##
+
+ordermanagementbackoffice.order.hierarchy.documentid=Document Id
+ordermanagementbackoffice.order.hierarchy.documenttype= Document Type	
+ordermanagementbackoffice.order.hierarchy.documentdenerationdate=Document Generation Date
+ordermanagementbackoffice.order.hierarchy.contractnumber=Contract Number
+
+hmc.order.print.section=Print Flag
+ordermanagementbackoffice.order.hierarchy.DownloadFlag=Print
+
+###END####
+
+
+go to below path
+C:\hybris5700\hybris\bin\ext-vodafone\vodafonebackoffice\resources\vodafonebackoffice-backoffice-labels
+
+open--> labels_en.properties
+
+
+###CHANGES###
+##ordermanagementbackoffice.order.hierarchy.actions=Download Contract##
+
+##Trying##
+ordermanagementbackoffice.order.hierarchy.DownloadFlag=Print Flag
+##Trying END##
+
+ordermanagementbackoffice.order.hierarchy.documentid=Document Id
+ordermanagementbackoffice.order.hierarchy.documenttype= Document Type	
+ordermanagementbackoffice.order.hierarchy.documentdenerationdate=Document Generation Date
+ordermanagementbackoffice.order.hierarchy.contractnumber=Contract Number
+
+hmc.order.print.section=Print Flag
+ordermanagementbackoffice.order.hierarchy.DownloadFlag=Print
+
+###END####

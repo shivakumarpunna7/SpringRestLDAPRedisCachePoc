@@ -1,0 +1,224 @@
+Hot Folder:
+-----------
+1. Create xml configuration
+
+	<?xml version="1.0" encoding="UTF-8"?>
+	<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:int="http://www.springframework.org/schema/integration"
+		xmlns:file="http://www.springframework.org/schema/integration/file"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration.xsd
+			http://www.springframework.org/schema/integration/file
+			http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context.xsd">
+			
+		<context:annotation-config/> 
+	
+		<bean id="baseDirectoryproductcatalog" class="java.lang.String">
+			<constructor-arg value="#{baseDirectory}/${tenantId}/productload" />
+		</bean>
+		
+		<!-- 1) Scan for files -->
+		<file:inbound-channel-adapter id="batchFilespc" directory="#{baseDirectoryproductcatalog}"
+			filename-regex="^(.*)\.xlsx" comparator="fileOrderComparator">
+			<int:poller fixed-rate="1000" />
+		</file:inbound-channel-adapter>
+	
+		<!-- 2) move the file to processing and setup header -->
+		<file:outbound-gateway request-channel="batchFilespc" reply-channel="batchFilesPCProc"
+			directory="#{baseDirectoryproductcatalog}/processing" delete-source-files="true" />
+			
+		// start reading the file which came inside processing folder
+		<int:service-activator input-channel="batchFilesPCProc" output-channel="batchFilesHeaderInit"
+			ref="pcSetupTask" method="execute" />
+		
+		<bean id="pcSetupTask" class="hu.vodafone.jobs.VodafonePCParser" parent="vodafBaseParser">
+			<property name="catalog" value="vodafoneProductCatalog" />
+			<property name="catalogVersion" value="Staged" />
+			<property name="net" value="false" />
+			<property name="storeBaseDirectory" ref="baseDirectoryproductcatalog" />
+			
+		</bean>
+		
+		<bean id="vodafoneBulkLoadJob" class="hu.vodafone.jobs.VodafoneBulkLoadJob">
+			<property name="catalog" value="vodafoneProductCatalog" />
+			<property name="catalogVersion" value="Staged" />
+		</bean>
+		
+		<bean id="vodafBaseParser" class="hu.vodafone.jobs.VodafoneBaseParser" parent="vodafoneBulkLoadJob">
+			<property name="priceFactory" ref="europe1.manager"></property>
+			<property name="classificationCatalog" value="vodafoneClassification" />
+			<property name="classificationCatalogVersion" value="1.0" />
+		</bean>
+		
+		// these beans are used to work on differnet sheets in xl sheet
+		<bean id="deviceAndhandSet" class="hu.vodafone.jobs.DeviceAndHandSetParser" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="deviceAndSimParser" class="hu.vodafone.jobs.DeviceAndSimParser" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="deviceAndModem" class="hu.vodafone.jobs.DeviceAndModemParser" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="servicePlanParser" class="hu.vodafone.jobs.ServicePlanParser" parent="vodafBaseParser"> 
+		</bean>
+		
+		<bean id="serviceAddOnParser" class="hu.vodafone.jobs.ServiceAddOnParser" parent="vodafBaseParser"> 
+		</bean>
+		
+		<bean id="accessoriesParser" class="hu.vodafone.jobs.AccessoriesParser" parent="vodafBaseParser"> 
+		</bean>
+		
+		<bean id="bundleDataReader" class="hu.vodafone.jobs.BundleData" parent="vodafBaseParser">
+		</bean>
+		
+		<bean id="bundleMapping" class="hu.vodafone.jobs.BundleMapping" parent="vodafBaseParser">
+		</bean>
+		<bean id="productReferenceMapping" class="hu.vodafone.jobs.ProductReferenceMapping" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="changeBundleRuleParser" class="hu.vodafone.jobs.ChangeProductPriceBundleRuleParser" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="disableProductVisibilityRuleParser" class="hu.vodafone.jobs.DisableProductVisibilityRuleParser" parent="vodafBaseParser"> 
+		</bean>
+		
+		<bean id="promotionFamilyParser" class="hu.vodafone.jobs.PromotionFamilyParser" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="promotionFixedandPercentageParser" class="hu.vodafone.jobs.PromotionFixedandPercentageParser" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="perfectPartnerPromotionsParser" class="hu.vodafone.jobs.PerfectPartnerPromotionsParser" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="vfPromotionRestrictions" class="hu.vodafone.jobs.VFPromotionRestrictions" parent="vodafBaseParser"> 
+		</bean>
+		<bean id="vfPriceRowsDeviceParser" class="hu.vodafone.jobs.VFPriceRowsDeviceParser" parent="vodafBaseParser"> 
+		</bean>
+		
+	</beans>
+
+2. 
+	public class VodafonePCParser extends VodafoneBaseParser implements VFPcParserConstants {
+		public BatchHeader execute(final File file) {
+			LOG.info("####################  Executeting Bulk Upload ####################");
+			Assert.notNull(file);
+			Registry.activateMasterTenant();
+			final JaloConnection jaloConnection = JaloConnection.getInstance();
+			JaloSession jaloSession;
+			String desctinationPath = null;
+			String devicePath = null;
+			String path = null;
+			XSSFWorkbook workbook2 = null;
+			XSSFSheet xssfSheet = null;
+			Registry.activateMasterTenant();
+			try {
+				jaloSession = jaloConnection.createSession((User) modelService
+						.getSource(userService.getAdminUser()));
+				jaloSession.activate();
+				jaloSession.createLocalSessionContext();
+				catalogVersionService.setSessionCatalogVersion(getCatalog(),
+						getCatalogVersion());
+			} catch (JaloSecurityException e1) {
+				LOG.error("Exception While setting jaloSession ", e1);
+			}
+	
+			// language
+			try {
+				commonI18NService.setCurrentLanguage(commonI18NService
+						.getLanguage(VFPcParserConstants.LANGUAGE_CODE));
+			} catch (Exception e) {
+				LOG.error("Exception while getting the Language", e);
+			}
+			// unzip files to a destination folder
+			desctinationPath = file.getParent();// + File.separator +
+												// file.getName().substring(0,
+												// file.getName().indexOf('.'));
+			// unzipFunction(desctinationPath, file);
+			// processing\zipfilename\tablet or handset
+			devicePath = desctinationPath + File.separator + "images_devices";
+			File folder = new File(desctinationPath);
+			if (folder.exists() && folder.isDirectory()) {
+				File[] listOfFolders = folder.listFiles();
+				for (int fileIndex = 0; fileIndex < listOfFolders.length; fileIndex++) {
+					if (listOfFolders[fileIndex].isFile()) {
+						try {
+							workbook2 = new XSSFWorkbook(listOfFolders[fileIndex]);
+							// handset
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Device_Handset);
+							if (xssfSheet != null) {
+								deviceAndhandSetParser.readDeviceAndhandSet(xssfSheet,
+										12, 0, VFPcParserConstants.handset, devicePath);
+							}
+							// Tablet
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Device_Tablet);
+							if (xssfSheet != null) {	
+								deviceAndhandSetParser.readDeviceAndhandSet(xssfSheet,
+										11, 0, VFPcParserConstants.tablet, devicePath);
+							}
+	
+							// Modem
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Device_Modem);
+							if (xssfSheet != null) {		
+								deviceAndModemParser.readDeviceAndModem(xssfSheet, 12,
+										0, VFPcParserConstants.ADSL_modems, devicePath);
+							}
+	
+							// Sim
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Device_Sim);
+							if (xssfSheet != null) {
+								deviceAndSimParser.readSimInfo(xssfSheet, 10, 0,
+										VFPcParserConstants.sim, devicePath);
+							}
+	
+							// Accessories
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Accessories);
+							if (xssfSheet != null) {
+								path = desctinationPath + File.separator
+										+ "images_accessories";
+								accessoriesParser.readAccessories(xssfSheet, 10, 0,
+										VFPcParserConstants.accessories, path);
+							}
+	
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Price_rows_in_Device);
+							if (xssfSheet != null) {
+								vfPriceRowsDeviceParser.readPriceRowsForDevice(
+										xssfSheet, 7, 0);
+							}
+	
+							// Service Plan
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Subscription_Service_Plan);
+							if (xssfSheet != null) {
+								servicePlanParser.readServicePlan(xssfSheet, 10, 0,
+										VFPcParserConstants.plans);
+							}
+	
+							// AddOn
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Subscription_Service_Add_on);
+							if (xssfSheet != null) {
+								serviceAddOnParser.readServiceAddOn(xssfSheet, 10,
+										0, VFPcParserConstants.addons);
+							}
+	
+							// bundle
+							xssfSheet = workbook2
+									.getSheet(VFPcParserConstants.Bundle_Data);
+							if (xssfSheet != null) {
+								bundleData.createBundleRules(xssfSheet, 10, 0,
+										VFPcParserConstants.CAT_VFRED);
+							}
+							} catch (InvalidFormatException e) {
+							LOG.error(e);
+						} catch (IOException e) {
+							// YTODO Auto-generated catch block
+							LOG.error(e);
+		}
+				
+	}

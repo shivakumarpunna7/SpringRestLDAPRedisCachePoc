@@ -1,0 +1,71 @@
+$contentCatalog=b2ctelcoContentCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+# Import modulegen config properties into impex macros
+UPDATE GenericItem[processor=de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor];pk[unique=true]
+$jarResourceCms=$config-jarResourceCmsValue
+$jarResourceCmsTelco=jar:de.hybris.platform.b2ctelcostore.setup.B2ctelcoStoreSystemSetup&/b2ctelcostore/import/cockpits/cmscockpit
+$addonExtensionName=b2ctelcostorefront
+$siteResource=jar:de.hybris.platform.b2ctelcostore.constants.B2ctelcostoreConstants&/b2ctelcostore/import/coredata/contentCatalogs/$contentCatalog
+
+# Language
+$lang=en
+
+
+INSERT_UPDATE PageTemplate;$contentCV[unique=true];uid[unique=true];name;frontendTemplateName;restrictedPageTypes(code);active[default=true]
+;;Vodafone;Vodafone Template;layout/Vodafone;CategoryPage,ContentPage
+
+
+
+
+UPDATE PageTemplate;$contentCV[unique=true];uid[unique=true];velocityTemplate[translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
+;;Vodafone      ;$jarResourceCms/structure-view/structure_Vodafone.vm
+
+INSERT_UPDATE ContentSlotName;name[unique=true];template(uid,$contentCV)[unique=true][default='Vodafone'];validComponentTypes(code);compTypeGroup(code)
+;SiteLogo;;;logo
+;HeaderLinks;;;headerlinks
+;SearchBox;;;searchbox
+;MiniCart;;;minicart
+;NavigationBar;;;navigation
+;Section1;;;wide
+;Footer;;;footer
+;TopHeaderSlot;;;wide
+;BottomHeaderSlot;;;wide
+;PlaceholderContentSlot;;;
+
+
+
+INSERT_UPDATE ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true];position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default='Vodafone'];contentSlot(uid,$contentCV)[unique=true];allowOverwrite
+;;SiteLogo-Vodafone;SiteLogo;;SiteLogoSlot;true
+;;HomepageLink-Vodafone;HomepageNavLink;;HomepageNavLinkSlot;true
+;;NavigationBar-Vodafone;NavigationBar;;NavigationBarSlot;true
+;;MiniCart-Vodafone;MiniCart;;MiniCartSlot;true
+;;Footer-Vodafone;Footer;;FooterSlot;true
+;;HeaderLinks-Vodafone;HeaderLinks;;HeaderLinksSlot;true
+;;SearchBox-Vodafone;SearchBox;;SearchBoxSlot;true
+;;TopHeaderSlot-Vodafone;TopHeaderSlot;;TopHeaderSlot;true
+;;BottomHeaderSlot-Vodafone;BottomHeaderSlot;;BottomHeaderSlot;true
+;;PlaceholderContentSlot-Vodafone;PlaceholderContentSlot;;PlaceholderContentSlot;true
+
+# CMS Paragraph Component (Contact information)
+INSERT_UPDATE RandomImageParagraphComponent;$contentCV[unique=true];uid[unique=true];name;&componentRef
+;; RandomImageParagraphComponent_New;Impel based RandomImageParagraphComponent; RandomImageParagraphComponent
+
+INSERT_UPDATE Media;$contentCV[unique=true];code[unique=true];@media[translator=de.hybris.platform.impex.jalo.media.MediaDataTranslator];mime[default='image/jpg'];altText;&imageRef;folder(qualifier)[default='images',forceWrite=true]
+;;sample_homepage_Sample_1.jpg;$siteResource/images/homepage_Sample_1.jpg;;"iPhone Plus - No iPhone is even bigger on productivity.";sample_homepage_Sample_1.jpg
+
+
+INSERT_UPDATE BannerComponent;$contentCV[unique=true];uid[unique=true];name;&componentRef;urlLink;media(&imageRef)
+;;SampleIPhoneBanner;Sample iPhone Banner;SampleIPhoneBanner;/Open-Catalogue/Devices/Smartphone/iPhone-3GS-32GB/p/3417123;sample_homepage_Sample_1.jpg
+
+# Content Slot
+INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];cmsComponents(&componentRef)
+;;samplePage_Section1Slot; RandomImageParagraphComponent,SampleIPhoneBanner
+
+INSERT_UPDATE ContentPage;$contentCV[unique=true];uid[unique=true];name;masterTemplate(uid,$contentCV);label;defaultPage[default='true'];approvalStatus(code)[default='approved'];homepage[default='false']
+;;samplePage; Sample  Vodafone Page; Vodafone;/sample
+
+INSERT_UPDATE ContentSlotForPage;$contentCV[unique=true];uid[unique=true];position[unique=true];page(uid,$contentCV)[unique=true];contentSlot(uid,$contentCV)[unique=true]
+;;Section1-samplePage;Section1;samplePage;samplePage_Section1Slot
+
+
+

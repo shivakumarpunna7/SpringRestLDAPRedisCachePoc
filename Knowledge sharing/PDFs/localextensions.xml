@@ -1,0 +1,27 @@
+<hybrisconfig xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='../bin/platform/resources/schemas/extensions.xsd'>
+  <extensions>
+    <path dir='${HYBRIS_BIN_DIR}' autoload='false' />
+    <extension name='acceleratorcms' />
+    <extension name='addonsupport' />
+    <extension name='b2ctelcocheckoutaddon' />
+    <extension name='b2ctelcocockpits' />
+    <extension name='b2ctelcostore' />
+    <extension name='b2ctelcostorefront' />
+    <extension name='cissubscription' />
+    <extension name='commercesearchbackoffice' />
+    <extension name='commerceservicesbackoffice' />
+    <extension name='entitlementstorefront' />
+    <extension name='mcc' />
+    <extension name='solrfacetsearchbackoffice' />
+    <extension name='solrserver' />
+    <extension name='subscriptionbackoffice' />
+    <extension name='subscriptionserviceshmc' />
+    <extension name='subscriptionstorefront' />
+    <extension name='Telcotrainingcockpits' />
+    <extension name='Telcotrainingcore' />
+    <extension name='Telcotrainingfulfilmentprocess' />
+    <extension name='Telcotrainingstorefront' />
+    <extension name='ycommercewebservices' />
+    <extension name="relatedproducts"/>
+  </extensions>
+</hybrisconfig>

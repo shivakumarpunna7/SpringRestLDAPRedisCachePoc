@@ -1,0 +1,161 @@
+https://wiki.hybris.com/display/release5/How+to+Create+a+Widget+-+Tutorial --Link
+
+1. Go to below path
+C:\Users\ysowmya\Documents\hybrislatest\hybris\bin\ext-vodafone\vodafonebackoffice\backoffice\resources\widgets
+
+2. Create a new folder for the Widget and create a xml in the folder
+
+
+Widget XML named definition.xml
+
+
+<!--START Search Widget sample by Soumya as on 12th Jan 2016 START-->
+	
+	<widget-definition id="hu.vodafone.widgets.mysearch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hybris.com/schema/cockpitng/widget-definition.xsd">
+ 
+    <name>My Search</name>
+    <description>My own search widget.</description>
+    <defaultTitle>Search</defaultTitle>
+    <author>Me</author>
+    <version>0.1</version>
+ 
+	</widget-definition>
+	
+	<!--END Search Widget sample by Soumya as on 12th Jan 2016 END-->
+	
+	
+3. Now create a ZLU file in the same folder named mysearch.zul	
+	
+	<widget xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.zkoss.org/2005/zul">
+    <style src="${wr}/default.css"/>
+    <div>
+        <hlayout>
+        <textbox id="searchInput"/>
+        <button id="searchBtn" label="Search"/>
+        </hlayout>
+    </div>
+</widget>
+
+4. Build your project. 
+Open a command prompt. 
+
+Navigate to the ${HYBRIS_BIN_DIR}/platform directory. 
+
+-->setantenv.bat
+-->ant clean all
+-->hybrisserver.bat
+
+5. -->Open the Backoffice application. For example: http://localhost:9001/backoffice. 
+	
+-->Switch to the Application Orchestrator by pressing F4.
+	
+-->From the main tab on the top of the page, at its right-hand side, click on plus sign to add a new widget.
+Choose the My Search widget. As the new search wizard has no category assigned, you may find it in the Uncategorized group. 
+You should see all information that you have provided in the widget definition.
+The widget is now added to the frontend application.
+
+6. Open STS and import vodafonebackoffice extension.
+To add Java File
+
+Creating new Package ->hu.vodafone.search
+Add a new class named SearchService to the src folder within the hu.vodafone.search package
+
+Goto vodafonebackoffice->src->hu.vodafone.search->RightClick-->New to add Java class
+
+/*
+
+/**
+ *
+ */
+package hu.vodafone.search;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * @author YSOWMYA
+ *
+ */
+public class SearchService
+{
+	public List<String> search(final String text)
+	{
+		final List<String> result = new ArrayList<String>();
+		result.add(text);
+		result.add("Hello");
+		result.add("Cockpit NG");
+		result.add("Developer");
+
+		return result;
+	}
+}
+*/
+
+-->Add the below line in vodafonebackoffice-spring.xml
+
+<!--START Search Widget sample by Soumya as on 12th Jan 2016 START-->
+<bean id="searchService" class=hu.vodafone.search.SearchService"></bean>
+<!--END Search Widget sample by Soumya as on 12th Jan 2016 END-->
+
+
+
+Goto vodafonebackoffice->backoffice/src->hu.vodafone.widgets->RightClick-->New to add Controller class
+
+Copy Paste the below class
+/*
+/**
+ *
+ */
+package hu.vodafone.widgets;
+
+import java.util.List;
+
+import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.Messagebox;
+import org.zkoss.zul.Textbox;
+
+import com.hybris.cockpitng.annotations.ViewEvent;
+import com.hybris.cockpitng.util.DefaultWidgetController;
+
+import hu.vodafone.search.SearchService;
+
+
+/**
+ * @author YSOWMYA
+ *
+ */
+public class MySearchController extends DefaultWidgetController
+{
+	private Textbox searchInput;
+
+	@WireVariable
+	private SearchService searchService;
+
+	@ViewEvent(componentID = "searchBtn", eventName = Events.ON_CLICK)
+	public void doSearch() throws InterruptedException
+	{
+		final List<String> result = searchService.search(searchInput.getText());
+		Messagebox.show(result.get(0));
+	}
+}
+
+*/
+
+-->Add the below code in the above given definition.xml inside widget definition
+ <controller class="hu.vodafone.widgets.MySearchController" />
+ 
+
+-------------------------------------------------------------------------------------------------
+
+
+Creating new Package ->hu.vodafone.search
+Creating new class ->SearchService
+
+Imp Link:
+https://wiki.hybris.com/display/release5/Advanced+Search+CNG+Search+API
+
+https://wiki.hybris.com/pages/viewpage.action?spaceKey=release5&title=How+to+Create+Custom+UI+Configuration+for+a+Widget+-+Tutorial
+
+

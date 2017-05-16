@@ -1,0 +1,82 @@
+#
+# Import the CMS content for the Vodafone site emails
+#
+$contentCatalog=vodafoneContentCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Online])[default=$contentCatalog:Online]
+$wideContent=CMSImageComponent,BannerComponent
+$lang=en
+# Import modulegen config properties into impex macros
+UPDATE GenericItem[processor=de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor];pk[unique=true]
+$jarResourceCms=$config-jarResourceCmsValue
+$emailPackageName=$config-emailContextPackageName
+$jarResourceCmsVodafone=jar:hu.vodafone.store.setup.VodafoneStoreSystemSetup&/vodafonestore/import/cockpits/cmscockpit/acc
+$jarResourceCoreEmail=$config-jarResourceCoreValue
+$emailJobPackageName=$config-emailJobContextPackageName
+
+
+
+
+
+# Email page Template
+INSERT_UPDATE EmailPageTemplate;$contentCV[unique=true];uid[unique=true];name;active;frontendTemplateName;subject(code);htmlTemplate(code);restrictedPageTypes(code)
+;;ContactEmailAddressTemplate;Contact email address Template;true;contactEmailAddress;vodafone_Email_Customer_EmailContact_Subject;vodafone_Email_Customer_EmailContact_Body;EmailPage
+
+
+# Templates for CMS Cockpit Page Edit
+UPDATE EmailPageTemplate;$contentCV[unique=true];uid[unique=true];velocityTemplate[translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
+;;ContactEmailAddressTemplate;$jarResourceCms/structure-view/structure_contactEmailAddressTemplate.vm
+
+INSERT_UPDATE ContentSlotName;name[unique=true];template(uid,$contentCV)[unique=true][default='ContactEmailAddressTemplate'];validComponentTypes(code)
+;SiteLogo;;;logo
+;TopContent;;$wideContent;
+;BottomContent;;$wideContent;
+
+
+# Create Content Slots
+INSERT_UPDATE ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true];position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default='ContactEmailAddressTemplate'];contentSlot(uid,$contentCV)[unique=true];allowOverwrite
+;;SiteLogo-ContactEmailAddress;SiteLogo;;EmailSiteLogoSlot;true
+;;TopContent-ContactEmailAddress;TopContent;;EmailTopSlot;true
+;;BottomContent-ContactEmailAddress;BottomContent;;EmailBottomSlot;true
+
+
+# Email Pages
+INSERT_UPDATE EmailPage;$contentCV[unique=true];uid[unique=true];name;masterTemplate(uid,$contentCV);defaultPage;approvalStatus(code)[default='approved']
+;;ContactEmailAddress;Customer Contact Email;ContactEmailAddressTemplate;true;
+
+
+# Email velocity templates
+INSERT_UPDATE RendererTemplate;code[unique=true];contextClass;rendererType(code)[default='velocity']
+;vodafone_Email_Customer_EmailContact_Body;$emailPackageName.ContactEmailAddressContext
+;vodafone_Email_Customer_EmailContact_Subject;$emailPackageName.ContactEmailAddressContext
+
+UPDATE EmailPage;$contentCV[unique=true];uid[unique=true];previewImage(code, $contentCV)
+;;ContactEmailAddress;EmailPageModel_preview
+
+
+
+
+# Email Pages
+UPDATE EmailPage;$contentCV[unique=true];uid[unique=true];fromEmail[lang=$lang];fromName[lang=$lang]
+;;ContactEmailAddress;"noreplywebshop.hu@vodafone.com";"Customer Services Team"
+;;ContactEmailAddress;"noreplywebshop.hu@vodafone.com";"Customer Services Team HU"
+
+
+#
+# Import the CMS content for the Vodafone site emails
+#
+$contentCatalog=vodafoneContentCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+$picture=media(code, $contentCV);
+
+# Import config properties into impex macros for modulegen
+UPDATE GenericItem[processor=de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor];pk[unique=true]
+$emailResource=$config-emailResourceValue
+
+# Language
+$lang=en
+
+#Email velocity templates
+UPDATE RendererTemplate;code[unique=true];description[lang=$lang];templateScript[lang=$lang,translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
+;vodafone_Email_Customer_EmailContact_Body;Customer Email  Address Body;$emailResource/email-contactEmailAddressBody.vm
+;vodafone_Email_Customer_EmailContact_Subject;Customer  Email  Address Subject;$emailResource/email-contactEmailAddressSubject.vm
+

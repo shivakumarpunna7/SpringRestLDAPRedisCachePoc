@@ -1,0 +1,256 @@
+1.  Tell me what you have done on Hybris in your project.
+2.  Have work on any integration of hybris to any other ERP or third party .
+3.  What is workflow in Hybris.
+4.  Suppose you need to create a own store(website) then what will your steps.
+5.  Suppose you have create a store by extending a hybris default base store then what common functionality will be in both.
+6.  They have asked question on Hybris Solr.
+7.  Suppose you are creating a product and you have to need a media file associated with product then how you can do it.
+8.  Asked question on Hybris data Model.
+9.  What is a Hybris Cockpit Frameowrk and hMC?
+10. What is a workflow in Hybris?
+11. Explain a high level steps to integrate a search engine (Solr, Endeca, GCS etc) with Hybris.
+12. How to configure a cronjob in Hybris?
+13. Explain How to Run the Hybris in cluster mode?
+14. Explain Hybris Caching mechanism in persistent layer?
+15. Explain the Hybris Data Model.
+16. Explain the FlexibleSearch and its usage? How is it related to SQL?
+17. What is Extension and how can you create extension.
+18. Can you customize ANT EXTGEN . If Yes then How ,Where need to change.
+19. What is ANT Command to generated your own website.
+20. About Dynamic attribute and their handler.
+21. Difference between Hybris version 5 to earlier version .
+22. Many question over items.xml like their syntax
+         <itemtype code="rna" extends="bus" autocreate="true"
+                      generate="true" jaloclass="com.everyreply">
+                <description>A Bus</description>
+                <deployment table="bus" typecode="11510"/>
+                <attributes>
+                    <attribute type="java.lang.String" qualifier="modelCode">
+                        <modifiers read="true" write="true" search="true"
+                                   optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+More will listed soon. If want to add then Reply below.
+
+
+
+
+some more question i got from sonata software , banglore
+What is impex?
+What is HMC?
+Explain catalog and product?
+How to define relation between types?
+Please explain Hybris Type System.
+How to synchronize Product?
+How to setup category?
+How to associate product to Category?
+What are the steps involved to create a cronjob?
+How to mention that code should be executed during system initialization or system update?
+How to define in which extension the code should be executed?
+
+
+
+
+
+Which version of hybris you are working upon?
+On what all modules of hybris you have worked upon?
+What is an extension. And how many types of extensions exists in hybris?
+Steps to create an extension
+What are the new features available in latest version of hybris?
+What is HMC?
+What is a perspective in cockpit?
+What is flexible search query?
+What are the different modes in which impex scripts can be executed?
+Difference between system initialization and update?
+Steps to add an attribute to an existing type?
+What is dynamic attribute. And how to create them?
+What is process engine in hybris? Different types of nodes in process engine?
+What is the difference between autocreate and generate attributes for a type in items.xml?
+How to declare dependency in an extension over another extension?
+What all classes are generated when ant build is performed?
+What is facade, service and dao layer?
+What is module gen?
+
+
+
+
+1. Suppose i want to index localized value in Solr . then how can i achieve it.
+2. They asked about multiple site for each country. how you can setup
+
+
+1. What do you know about hybris? What are the differentiators from other eCommerce frameworks?
+
+2. Explain the architecture of hybris briefly.
+
+3. How do you model data in hybris? What do you know about dynamic attributes?
+
+4. How do you create an extension and a module in hybris?
+
+5. What is the difference between an extension and a module?
+
+6. Mention the name of 10 out-of-box extensions.
+
+7. What is the information you write inside extensioninfo.xml?
+
+8. What is localextensions.xml?
+
+9. What do understand about local.properties? What is relationship of project.properties in platform, project.properties of individual extensions and local.properties
+
+10. What do you know about flexible search query? Could you write a query to fetch all products? Also, how do you write a query to fetch data for products but not for its children types?
+
+11. What do you know about Cron Job? Mention 3-4 typical use cases of Cron Jobs.
+
+12. Explain the catalog in hybris.
+
+13. What do you know about classification system?
+
+14. What do you know about catalog synchronization?
+
+15. How do you change a system configuration at runtime (i.e. without restarting the server)? Give  an example.
+
+16. Name 5 cockpits
+
+17. Mention 5 uses of hAC?
+
+18. How do you create a site and a store?
+
+19. How can run hybris server in the hAC-only mode?
+
+20. What do you know about hybris CMS?
+
+21. What do understand about page template, page, slot and components?
+
+22. Explain briefly 5 out-of-box CMS components
+
+23. What is the extension responsible for advanced personalization?
+
+24. What is name of the file where you define the layout of hMC?
+
+25. Which framework a cockpit is built with?
+
+26. Explain 5 integrations that were there in your application.
+
+27. What do you know about data hub?
+
+28. What were the database, application server, continuous integration server and search engine in your project?
+
+29. How do you manage the code quality of hybris?
+
+30. What do you know about unit testing and integration testing? How is it done using JUnit in hybris?
+
+31. What is the difference between system initialization and update?
+
+32. How do you type system clean up?
+
+33. What do you know about l10n and i18n in hybris?
+
+33. Give an overview of the activities that are performed as part of production cutover.
+
+34. What do you know about NFRs?
+
+35. What are typical timelines of a B2C and a B2B projects?
+
+36. What do you understand about RWD?
+
+37. What do you understand about searchandising?
+
+38. How can you say that hybris is an omni-channel eCommerce platform?
+
+39. What do you know about a deployment table? What is the recommended practice for deployment tables?
+
+40. What do you know about ImpEx?
+
+41. What is Data-Hub?
+
+41. Describe any 2 methods of business analysis
+
+42. What do you know about ASM?
+
+42. What do you know about synchronous and asynchronous integrations?
+
+43. What are the functional differences between B2B and B2C?
+
+44. Describe different types of backoffice tools provided by hybris ?
+
+45. What are all tools (code quality, code coverage, IDE, CI etc.)  used during hybris project SDLC?
+
+46. What do you know about InStore module of hybris?
+
+47. What do you know about hybris OMS module?
+
+48. What do you know understand by single channel, multi channel and omni channel eCommerce?
+
+49. Describe typical integrations in an eCommerce application
+
+50. Describe multi-tenancy of hybris
+
+51. What do you know about clustered environment? How is a cache distributed between different nodes?
+
+52. What do you know about hybris caching mechanism? What is region cache?
+
+53. What do you know about process engine and workflows in hybris?
+
+54. What is do you know about hot folder of hybris?
+
+55. What do you know promotions in hybris? Describe some of the promotion templates provided by hybris
+
+56. What do you know understand by media conversion?
+
+57. What do you know about restrictions in hybris?
+
+58. What do you know about OCC and CIS in hybris?
+
+59. What do you understand by user group?
+
+60. What is the purpose of a price group in hybris?
+
+
+what is difference between Custom and Customize folder in Hybris
+
+when you create the Item in Hybris their models class generated in platform extesions?
+ 
+ 
+ explain Hybris Order Splitting Strategy or how order splitting happen in Hybris ?
+ 
+ 
+ 1.  What you have done on Hybris in your project.
+2.  Have work on any integration of hybris to any other ERP or third party .
+3.  What is workflow in Hybris.
+4.  Suppose you need to create a own store(website) then what will your steps.
+5.  How to handle if you have to create a store by extending a hybris default base store then what common functionality will be in both.
+6.  Do you know what is Hybris Solr.
+7.  How to handle if you are creating a product and you have to need a media file associated with product then how you can do it.
+8.  Explain the FlexibleSearch and its usage? How is it related to SQL?
+9.  What is a Hybris Cockpit Frameowrk and hMC?
+10. What is a workflow in Hybris?
+11. Explain a high level steps to integrate a search engine (Solr, Endeca, GCS etc) with Hybris.
+12. How to configure a cronjob in SAP Hybris?
+13. Explain How to Run the Hybris in cluster mode?
+14. Explain Hybris Caching mechanism in persistent layer?
+15. What do you know about Hybris data Model?
+16. Explain the Hybris Data Model?
+17. What is Extension and how to create extension?
+18. How to customize ANT EXTGEN  and where need to change it?
+19. What is ANT Command to generated your own website.
+20. What are Dynamic attributes and their handler.
+21. Difference between Hybris version 5 to earlier version .
+22. Do you know about items.xml like their syntax
+         <itemtype code="rna" extends="bus" autocreate="true"
+                      generate="true" jaloclass="com.everyreply">
+                <description>A Bus</description>
+                <deployment table="bus" typecode="11510"/>
+                <attributes>
+                    <attribute type="java.lang.String" qualifier="modelCode">
+                        <modifiers read="true" write="true" search="true"
+                                   optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+23. Do you know Collection type vs. Relation Type in Hybris?
+24. How to configure Hybris for Cluster Mode?
+25. Why extension one should opt to customize home page in SAP Hybris?
+26. Why models class generated in platform extensions in Hybris?
+27. How to check Standalone or Embedded Solr is being used in Hybris Multi Channel Suite?
+28. How to Setup Standalone Solr Server in SAP Hybris?
+29. How to know the requirement of a private package in YaaS Builder in Hybris?
+30. What is Punchout in SAP Hybris?
+ 

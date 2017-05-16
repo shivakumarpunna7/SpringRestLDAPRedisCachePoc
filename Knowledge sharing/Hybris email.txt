@@ -1,0 +1,489 @@
+Hybris Email:
+------------
+1. Create one Event extends with abstractEvent or abstractCommerceEvent (it is a java class holds required getter setters)
+	public class ShivaEvent extends AbstractCommerceUserEvent<BaseSiteModel> implements ClusterAwareEvent {
+
+		private UserModel userModel;
+		/**
+		* This field holds the value of serialVersionUID
+		*/
+		private static final long serialVersionUID = 1L;
+	
+		@Override
+		public boolean publish(final int sourceNodeId, final int targetNodeId) {
+			return sourceNodeId == targetNodeId;
+		}
+	
+		/**
+		* @return the userModel
+		*/
+		public UserModel getUserModel() {
+			return userModel;
+		}
+	
+		/**
+		* @param userModel
+		*            the userModel to set
+		*/
+		public void setUserModel(UserModel userModel) {
+			this.userModel = userModel;
+		
+		}
+	}
+2. create event listener extends AbstractSiteEventListener<> (it is a simple java class)
+
+	public class ShivaEventListener extends AbstractEventListener<ShivaEvent> {
+
+		@Autowired
+		BusinessProcessService businessProcessService;
+		
+		@Autowired
+		ModelService modelService;
+		
+		@Autowired
+		ConfigurationService configurationService;
+		
+		@Autowired
+		private BaseSiteService baseSiteService;
+		
+		@Autowired
+		private CommonI18NService commonI18NService;
+		
+		@Autowired
+		private DBTextService dbTextService;
+		
+		@Autowired
+		private I18NService i18nService;
+		
+		/** The default language. */
+		private String defaultLanguage;
+		
+		/** The default base store. */
+		private String defaultBaseStore;
+		
+		@Override
+		protected void onEvent(ShivaEvent event) {
+			ShivaEmailProcessModel shivaEmailProcessModel = businessProcessService.createProcess(
+					"shivaEmailProcess-" + event.getOrderModel().getCode() + "-" + System.currentTimeMillis(),
+					"shiva-email-process");
+			prepareParams(shivaEmailProcessModel);
+			modelService.save(shivaEmailProcessModel);
+			businessProcessService.startProcess(shivaEmailProcessModel);
+		}
+		
+		/**
+			* Prepare params.
+			*/
+		private void prepareParams(ShivaEmailProcessModel shivaEmailProcessModel) {
+			String baseSiteForUid = (String) configurationService
+					.getConfiguration().getProperty("hybris.basesite");
+			if (StringUtils.isNotEmpty(baseSiteForUid)) {
+				shivaEmailProcessModel.setSite(baseSiteService.getBaseSiteForUID(
+						baseSiteForUid));
+			}
+			if (defaultLanguage == null) {
+				defaultLanguage = Config
+						.getParameter("userCreationEmail.defaultLanguage");
+			}
+			if (defaultBaseStore == null) {
+				defaultBaseStore = Config
+						.getParameter("userCreationEmail.defaultBaseStore");
+			}
+			shivaEmailProcessModel.setLanguage(getLanguage());
+		}
+		
+		private LanguageModel getLanguage() {
+			return commonI18NService.getLanguage(defaultLanguage);
+		}
+	}
+	
+----> bean for this event listener
+	<bean id="shivaEventListener" class="hu.vodafone.core.event.ShivaEventListener" parent="abstractSiteEventListener"></bean>
+	
+----> email.id.pmlmanager=productmanager@vodafone.com
+	  email.id.pmlmanager.name=PML Manager
+	  mail.from;"noreplywebshop.hu@vodafone.com"
+	  
+3. we have to create one process.
+
+a. we have to create on process model by extending business process (in item.xml)
+	<typegroup>
+		<itemtype code="ShivaEmailProcess" autocreate="true"
+			generate="true" jaloclass="hu.vodafone.orderprocessing.jalo.ShivaEmailProcess"
+			extends="BusinessProcess"> ------------------------------> here we can extend storeforntprocess instead of adding 
+																	   site and language attributes manually
+			<attributes>
+				<attribute qualifier="language" type="Language">
+					<persistence type="property" />
+					<description>Attribute contains language that will be used in the
+					process.</description>
+				</attribute>
+				<attribute qualifier="site" type="BaseSite">
+					<persistence type="property" />
+					<description>Attribute contains base site object that will be used
+					in the process.</description>
+				</attribute>
+			</attributes>
+		</itemtype>
+	</typegroup>
+b. we have to put one relation to the abstract order to read the order information 
+	<relation generate="true" localized="false"
+		code="AbstractOrder2shviaEmailProcess" autocreate="true">
+		<sourceElement type="AbstractOrder" cardinality="one"
+			qualifier="order">
+			<modifiers initial="true" optional="true" />
+		</sourceElement>
+		<targetElement type="ShivaEmailProcess"
+			cardinality="many" qualifier="ShivaEmailProcess">
+			<modifiers initial="true" optional="true" />
+		</targetElement>
+	</relation>
+c. we have to create one process.xml
+	
+	<?xml version="1.0" encoding="utf-8"?>
+	<process xmlns="http://www.hybris.de/xsd/processdefinition"
+		start="shivaEmailAction" name="shiva-email-process"
+		processClass="hu.vodafone.orderprocessing.model.ShivaEmailProcessModel">
+	
+		<action id="shivaEmailAction" bean="shivaEmailAction" >
+			<transition name="OK" to="sendEmail" />
+			<transition name="NOK" to="error" />
+		</action>
+		
+		<action id="sendEmail" bean="sendEmail">
+			<transition name="OK" to="removeSentEmail"/>
+			<transition name="NOK" to="failed"/>
+		</action>
+	
+		<action id="removeSentEmail" bean="removeSentEmail">
+			<transition name="OK" to="success"/>
+			<transition name="NOK" to="error"/>
+		</action>
+		
+		<end id="error" state="ERROR">Something went wrong.</end>
+		<end id="failed" state="FAILED">Could not send customer activation email..</end>
+		<end id="success" state="SUCCEEDED">Sent customer activation email.</end>
+	</process>
+----> bean declaration for above bean
+	<bean id="shivaEmailAction" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="ShivaEmailTemplate"></property>
+	</bean>
+	
+	<bean id="shivaEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/vodafoneordermanagement/process/shiva-email-process.xml"/>
+	</bean>
+	
+----> here we are passing our own template to the abstractGenerateEmailAction. this Own Template will be configured in impex
+
+4. Impex changes in email-context.impex
+
+--->	$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+	# Email page Template
+	INSERT_UPDATE EmailPageTemplate;$contentCV[unique=true];uid[unique=true];name;active;frontendTemplateName;subject(code);htmlTemplate(code);restrictedPageTypes(code)
+	;;ShivaEmailTemplate;Shiva Email Template;true;shivaEmailTemplate;Shiva_Email_Template_Subject;Shiva_Email_Template_Body;EmailPage
+	
+---> # Templates for CMS Cockpit Page Edit
+	UPDATE EmailPageTemplate;$contentCV[unique=true];uid[unique=true];velocityTemplate[translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
+	;;ShivaEmailTemplate;$jarResourceCms/structure-view/structure_shivaEmailTemplate.vm
+	
+--->INSERT_UPDATE ContentSlotName;name[unique=true];template(uid,$contentCV)[unique=true][default='ShivaEmailTemplate'];validComponentTypes(code)
+	;SiteLogo;;;logo
+	;TopContent;;$wideContent;
+	;BottomContent;;$wideContent;
+	
+---># Bind Content Slots to Email Page Templates
+	INSERT_UPDATE ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true];position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default='ShivaEmailTemplate'];contentSlot(uid,$contentCV)[unique=true];allowOverwrite
+	;;SiteLogo-ShivaEmail;SiteLogo;;SiteLogoSlot;true
+	;;TopContent-ShivaEmail;TopContent;;EmailTopSlot;true
+	;;BottomContent-ShivaEmail;BottomContent;;EmailBottomSlot;true
+
+---> # Email Pages
+	INSERT_UPDATE EmailPage;$contentCV[unique=true];uid[unique=true];name;masterTemplate(uid,$contentCV);defaultPage;approvalStatus(code)[default='approved']
+	;;ShivaEmail;Shiva Email Template;ShivaEmailTemplate;true;
+	
+--->UPDATE EmailPage;$contentCV[unique=true];uid[unique=true];previewImage(code, $contentCV)
+	;;ShivaEmail;EmailPageModel_preview
+	
+---> # Email velocity templates
+	INSERT_UPDATE RendererTemplate;code[unique=true];contextClass;rendererType(code)[default='velocity']
+	;Shiva_Email_Template_Subject;$emailPackageName.ShivaEmailContext
+	;Shiva_Email_Template_Body;$emailPackageName.ShivaEmailContext
+	
+---> INSERT_UPDATE CMSImageComponent;$contentCV[unique=true];uid[unique=true];name
+	;;emailHeaderShivaImageComponent;Email Header Image
+
+--->INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];name;active;cmsComponents(uid,$contentCV)
+	;;emailHeaderShivaSlot;Email Header Image Content Slot ;true;emailHeaderShivaImageComponent
+
+--> INSERT_UPDATE 						ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true];position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default='ShivaEmailTemplate'];contentSlot(uid,$contentCV)[unique=true];allowOverwrite
+	;;emailHeader-ShivaEmail;HeaderImageContent;;emailHeaderShivaSlot;true
+
+---> INSERT_UPDATE ContentSlotName;name[unique=true];template(uid,$contentCV)[unique=true][default='ShivaEmailTemplate'];validComponentTypes(code)
+;HeaderImageContent;;$wideContent;
+
+5. impex changes in email-context-en.impex
+
+---> # CMS components and Email velocity templates
+	UPDATE RendererTemplate;code[unique=true];description[lang=$lang];templateScript[lang=$lang,translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
+	;Shiva_Email_Template_Subject;Shiva Email Template Subject;$emailResource/email-shivaEmailBody.vm
+	;Shiva_Email_Template_Body;Shiva Email Template Body;$emailResource/email-shivaEmailBody.vm
+	
+---> # Email Pages
+	UPDATE EmailPage;$contentCV[unique=true];uid[unique=true];fromEmail[lang=$lang];fromName[lang=$lang]
+	;;ShivaEmail;"shiva@hybris.com";"Customer Services Team"
+
+---> UPDATE CMSImageComponent;$contentCV[unique=true];uid[unique=true];$picture[lang=$lang]
+	;;emailHeaderShivaImageComponent;/images/theme/redsky_email_textlogo.png
+	
+6. create 3 vm files for subject, body and structure-view/structure_shivaEmailTemplate and property files for content
+	1. email-shivaEmailBody.vm
+	## messageSource=classpath:/vodafonecore/messages/email-shivaEmail_$lang.properties
+	<html>
+	   <head>
+		  <meta charset="utf-8">
+		  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+		  <meta name="viewport" content="width=device-width, initial-scale=1">
+		 
+	   </head>
+	   <style>
+		body {
+			font-family: Arial;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: normal;
+			letter-spacing: 0.02px;
+			text-rendering: geometricPrecision;
+			font-smooth: always;
+			font-smoothing: antialiased;
+			-moz-font-smoothing: antialiased;
+			-webkit-font-smoothing: subpixel-antialiased;
+			margin: 0;
+			padding: 0;
+		}
+		p{padding:0;margin:0;}
+	   .page_start {
+			position: relative;
+		}
+	   .super_parent {
+			width: 970px;
+			margin: 0 auto;
+			position: relative;
+			padding-left: 10px;
+			padding-right: 10px;
+		}
+		.mail_header_right {
+			float: right;
+			display: block;
+			padding: 28px 20px;
+			color: #fff;
+			font-size: 20px;
+		}
+		.vodafone_logo {
+			float: left;
+			display: block;
+			position: relative;
+			padding: 0;
+			height: 80px;
+			margin: 0;
+		}
+		.mail_header {
+			background: #333;
+			float: left;
+			height: 80px;
+			width: 100%;
+		}
+		.mail_content {
+			float: left;
+			clear: both;
+			padding: 20px 0;
+		}
+		
+		.mail_content h1{color:#e60000;font-size:22px;}
+		
+		.mail_content h2{color:#333;font-size:18px;}
+		
+		.mail_content p{color:#666;}
+		
+		.mail_footer {
+			background: #e60000;
+			clear: both;
+			padding: 20px 0;
+			float: left;
+			width: 100%;
+			color: #fff;
+		}
+		.mail_footer_left {
+			float: left;
+			font-size: 16px;
+		}
+		.mail_footer_right {
+			float: right;
+			padding: 10px 0;
+		}
+		.mail_footer_right a {
+			padding: 0 8px;
+			color: #fff;
+			text-decoration: none;
+			float: left;
+			border-right: 1px solid #fff;
+		}
+	   </style>
+	   
+	   <body>
+			<div class="page_start">
+				<div class="super_parent">
+					
+					<div class="mail_content">
+						<h1>${ctx.messages.salutation}</h1>
+						<p>
+						${ctx.messages.getMessage('inventoringinfo', ${ctx.inventoringinfo})}
+						</p>
+					</div>
+					
+				</div>
+				<div class="mail_footer">
+					<div class="super_parent">
+						<div class="mail_footer_left">
+							<p>${ctx.messages.regards}</p>
+							<strong>${ctx.messages.signature}</strong>
+						</div>
+					</div>
+				</div>
+			</div>
+	   </body>
+	</html>
+	
+	2. email-shivaEmailSubject.vm
+	
+		// if you see in property file the emailSubject contains place holder that will replace with ${ctx.inventoringinfo} value
+		// we are setting this value in context file and reading here
+		// if more than one place holder is there like ({0}{1}) then we will pass the value here like (${ctx.inventoringinfo},${ctx.inventoringinfo1})
+		${ctx.messages.getMessage('emailSubject', ${ctx.inventoringinfo})}
+	
+	3. structure_shivaEmailTemplate
+	
+	<div>
+		<table width="100%" cellspacing="0" style="margin:0;padding:0;table-layout:fixed;border:1px solid #1E4EBF;">
+		<tbody>
+			<tr>
+				<td colspan="2" height="125px" width="35%" rowspan="2" class="structureViewSection">
+					<cockpit code="SiteLogo" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" height="89px" class="structureViewSection">
+					<div>Header</div>
+				</td>
+			</tr>
+			<tr>
+				<td height="170px" colspan="6" class="structureViewSection">
+					<cockpit code="TopContent" />
+				</td>
+			</tr>
+			<tr>
+				<td height="300px" colspan="6" class="structureViewSection">
+				</td>
+			</tr>
+			<tr>
+				<td height="170px" colspan="6" class="structureViewSection">
+					<cockpit code="BottomContent" />
+				</td>
+			</tr>
+		</tbody>
+		ble>
+		style="width:100%; border-top: 2px solid #bbb" class="cmsContentEditor">
+		<cockpit code="editor" />
+		v>
+	</div>
+	
+	3.email-shivaEmail_en.properties	
+		salutation = Dear User
+		emailSubject = Inventoring {0}
+		inventoringinfo= We are pleased to inform you that inventoring is {0}
+		regards = Yours
+		signature = Vodafone
+	
+
+7. create context file extending AbstractEmailContext (it is used to load the requited values in vm dynamically like first name in email (dear shiva))
+
+	public class ShivaEmailContext extends AbstractEmailContext<ShivaEmailProcessModel> {
+
+		@Autowired
+		ConfigurationService configurationService;
+	
+		@Autowired
+		private DBTextService dbTextService;
+	
+		@Autowired
+		private I18NService i18nService;
+	
+		@Override
+		public void init(final ShivaEmailProcessModel businessProcessModel,
+				final EmailPageModel emailPageModel) {
+			super.init(businessProcessModel, emailPageModel);
+			put(EMAIL, Config.getParameter("email.id.pmlmanager"));
+			put(DISPLAY_NAME, Config.getParameter("email.id.pmlmanager.name"));
+			if (null != dbTextService.getLocalizedText("mail.from",
+					i18nService.getCurrentLocale())) {
+				put(FROM_EMAIL,
+						dbTextService.getLocalizedText("mail.from",
+								i18nService.getCurrentLocale()));
+			}
+	
+		}
+	
+		@Override
+		protected BaseSiteModel getSite(ShivaEmailProcessModel businessProcessModel) {
+			return businessProcessModel.getSite();
+		}
+	
+		@Override
+		protected CustomerModel getCustomer(ShivaEmailProcessModel businessProcessModel) {
+			return (CustomerModel) businessProcessModel.getUser();
+		}
+	
+		@Override
+		protected LanguageModel getEmailLanguage(ShivaEmailProcessModel businessProcessModel) {
+			return businessProcessModel.getLanguage();
+		}
+	}
+----> bean for context
+	<bean id="shivaEmailContext" class="hu.vodafone.facades.process.email.context.ShivaEmailContext" parent="abstractEmailContext" scope="prototype"/>
+
+Note: 
+------
+	we have to override VodafoneProcessContextResolutionStrategy to read data from our own process model(ShivaEmailProcessModel)
+	bcz by defualt it will check the instances of StoreFrontProcessModel, OrderProcessModel and ConsignmentProcessModel 
+	
+	public class VodafoneProcessContextResolutionStrategy extends DefaultProcessContextResolutionStrategy {
+
+		@Autowired
+		ConfigurationService configurationService;
+	
+		@Autowired
+		private BaseSiteService baseSiteService;
+	
+		/* (non-Javadoc)
+		* @see de.hybris.platform.acceleratorservices.process.strategies.impl.DefaultProcessContextResolutionStrategy#getCmsSite(de.hybris.platform.processengine.model.BusinessProcessModel)
+		*/
+		@Override
+		public BaseSiteModel getCmsSite(final BusinessProcessModel businessProcess) {
+			if (businessProcess instanceof UserEmailProcessModel)
+			{
+				return ((UserEmailProcessModel) businessProcess).getSite();
+			}
+	
+			if (businessProcess instanceof ShivaEmailProcessModel)
+			{
+				return ((ShivaEmailProcessModel) businessProcess).getSite();
+			}
+	
+		return super.getCmsSite(businessProcess);
+    }
+
+	Note:
+	-----
+		if you extend storeforntprocess in item.xml instead of business you no need to do the above customization(VodafoneProcessContextResolutionStrategy)
+		
+

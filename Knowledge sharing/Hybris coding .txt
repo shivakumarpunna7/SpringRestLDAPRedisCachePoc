@@ -1,0 +1,415 @@
+Model Service:
+-----------------
+1. create() : to create the instance for the model class.
+	modelService.create(OnTimeSMSSenderModel.class);
+2. save() : to save the model class
+	modelService.save(onTimeSMSSenderModel);
+3. remove() : to remove the single instance of the model class
+	modelService.remove(onTimeSMSSenderModel);
+4. removeAll() : to remove the collection of records in one to many relation 
+	Collection<ProcessTaskModel> processTasks = process.getCurrentTasks();
+	modelService.removeAll(processTasks);
+	
+Registry:
+---------
+---> to get the model service object from application context here is one of the way
+	Registry.getApplicationContext().getBean("modelService");
+
+FlexibleSearchService:
+----------------------
+1. search() : to search the data in table and provide results based on FlexibleSearchQuery(class).
+		FlexibleSearchQuery query = new FlexibleSearchQuery("select * from {OnTimeSMSSenderCronjob}");
+        SearchResult<OnTimeSMSSenderModel> result = flexibleSearchService.search(query);
+
+
+PersistentKeyGenerator:
+-----------------------
+1. generate() : to generate of sequence of numbers based on the bean configuration.
+	<bean
+		id="orderHistoryIdSequenceGenerator"
+		class="de.hybris.platform.servicelayer.keygenerator.impl.PersistentKeyGenerator"
+		init-method="init"
+		scope="tenant">
+		<property
+			name="key"
+			value="REFID" />
+		<property
+			name="digits"
+			value="20" />
+		<property
+			name="start"
+			value="000000000000000000001" />
+		<property
+			name="numeric"
+			value="true" />
+	</bean>
+
+BusinessProcessEvent: 
+---------------------
+	for (final PrepaidServiceActivationProcessModel prepaidServActProcModel : order.getPrepaidServiceActivationProcess()) {
+		eventId = prepaidServActProcModel.getCode()
+									+ VodafonegenericintegrationConstants.UNDERSCORE
+									+ prepaidServActProcModel.getCustomerCreationWaitEvent();
+	}
+	BusinessProcessEvent event = BusinessProcessEvent	
+							.builder(eventId).withChoice("CustomerCreated")
+							.build();
+Note:
+------ 
+	prepaidServActProcModel.getCode() 						 --> Process unique code
+	prepaidServActProcModel.getCustomerCreationWaitEvent()	 --> evnet name (in this case "CustomerCreationEvent")
+	
+---> how to create process model
+	<itemtype code="PrepaidServiceActivationProcess" autocreate="true"
+				generate="true"
+				jaloclass="hu.vodafone.orderprocessing.jalo.PrepaidServiceActivationProcess"
+				extends="BusinessProcess">
+				<attributes>
+					List of required attributes
+				</attributes>
+	</itemtype>
+	
+Note: prepaid-service-activation-process.xml contains the wait event. to release this event we have to specify the eventId and choice of the event in above BusinessProcessEvent
+---------
+---->with choices
+	<wait id="waitForCustomerCreation" prependProcessCode="true" then="success">
+		<case event="CustomerCreationEvent">
+			<choice id="CustomerCreated" then="continueToNextSub" />
+		</case>
+	</wait>	
+----> with out choices
+	<wait id="waitForCustomerCreation" prependProcessCode="true" then="success">
+		<event>CustomerCreationEvent</event>
+	</wait>	
+	
+BusinessProcessService:
+--------------------------
+1. triggerEvent(event) : to release the above event we have to trigger the event(BusinessProcessEvent).
+	businessProcessService.triggerEvent(event)
+2. createProcess(): to create process/sub_process, before this we will create one XML file for this process (here order-cancel-process.xml)
+----> creating xml
+	<?xml version="1.0" encoding="utf-8"?>
+	<process xmlns="http://www.hybris.de/xsd/processdefinition" start="cancelPossible"
+         name="ordercancel-process"
+         processClass="de.hybris.platform.orderprocessing.model.OrderProcessModel">
+
+       <action id="cancelPossible" bean="cancelPossibleAction">
+        <transition name="OK" to="cancelCreditVetting"/>
+        <transition name="NOK" to="error"/>
+    </action>
+	--------- list of actions
+	</process>
+----> creating process/sub_process
+	String processCode = "ordercancel-process" + DASH + ((orderModel.getCode() != null) ? orderModel.getCode() : BLANK)
+                 + DASH + System.currentTimeMillis();
+		 
+		OrderProcessModel businessProcessModel = (OrderProcessModel) businessProcessService.createProcess(
+             processCode, "ordercancel-process");
+     businessProcessModel.setOrder(orderModel);
+     modelService.save(businessProcessModel);
+-----> start process/sub_process
+     businessProcessService.startProcess(businessProcessModel);
+----> restart the process
+		CreditVettingProcessModel creditVettingProcess = businessProcessService.getProcess(processCode);
+		creditVettingProcess.setOrderProcess(process);
+		modelService.save(process);
+		businessProcessService.restartProcess(creditVettingProcess, orderProcessHelper.getStartNode(creditVettingProcess));
+	
+	
+    
+	
+ConfigurationService:
+------------------------
+1. To load the data form property file
+	configurationService.getConfiguration().getProperty("property name")
+	
+UserService:
+-------------
+1. if you want to perform any operation (which required admin permissions) then we have to set current user as admin
+	userService.setCurrentUser(getUserService().getAdminUser());
+2. to get the current user
+	userService.getCurrentUser();
+	userService.getCurrentUser().getAllGroups()
+3.
+	userService.getUserForUID(name)
+	
+EventService: To send "SMS" we have to do the following steps
+------------         ------
+1. create pojo class by extending AbstractEvent and implementing ClusterAwareEvent. create your own variables and generate getter and setters.
+2. Setting the values to pojo and pass this pojo to publicEvent() method
+		Map<String, String> consts = new HashMap<>();
+		consts.put("%%Order_ID%%", order.getCode());
+		SmsSendEvent event3 = new SmsSendEvent("wssms_cons_cvr", order.getCustomer().getPhoneNumber(), consts, order.getLanguage().getIsocode());
+		eventService.publishEvent(event3);
+
+SiteBaseUrlResolutionService:
+-----------------------------
+String secureBaseSiteURL = siteBaseUrlResolutionService.getWebsiteUrlForSite(order.getSite(), null, true, "");
+
+OrderCancelService:
+--------------------
+1. isCancelPossible() --> this will give the Canceldecision that mean we are allowed to cancel the order or not
+	CancelDecision cancelDecision = orderCancelService.isCancelPossible(
+				order, order.getCustomer(), true, true);
+		if (cancelDecision.isAllowed()) {
+--------> add bundle entries to the list and do the orderCancelRequest
+		List<OrderCancelEntry> cancelRequestEntries = new ArrayList<>();
+		for (AbstractOrderEntryModel orderEntry : bundleEntries) {
+					cancelRequestEntries.add(createOrderCancelRequestEntry(orderEntry, "Credit Vetting rejected", CancelReason.VETTINGREJECTED, orderEntry.getQuantity()));
+		}
+		OrderCancelRequest partialOrderRequest = new OrderCancelRequest(order, cancelRequestEntries, "Credit Vetting rejected");
+		OrderCancelRecordEntryModel orderCancelRecordEntryModel = orderCancelService.requestOrderCancel(partialOrderRequest, order.getCustomer());
+
+		}
+2. full order cancellation
+
+		userService.setCurrentUser(userService.getAdminUser());		   
+		CancelDecision cancelDecision = orderCancelService.isCancelPossible(orderModel, orderModel.getCustomer(), false, false);
+		if (cancelDecision.isAllowed()) {
+			final List<OrderCancelEntry> cancelRequestEntries = orderModel.getEntries().stream().filter(orderEntry -> orderEntry.getQuantity() > 0)
+					.map(orderEntry -> createOrderCancelRequestEntry(orderEntry, "Customer requested for cancel", CancelReason.CUSTOMERCANCELLED,
+							orderEntry.getQuantity())).collect(Collectors.toList());
+			final OrderCancelRequest partialOrderRequest = new OrderCancelRequest(orderModel, cancelRequestEntries, "Customer requested for cancel");
+			OrderCancelRecordEntryModel orderCancelRecordEntryModel = orderCancelService.requestOrderCancel(partialOrderRequest, orderModel.getCustomer());
+			if (!orderCancelRecordEntryModel.getStatus().equals(OrderModificationEntryStatus.FAILED)) {
+				modelService.save(orderCancelRecordEntryModel);
+			}
+3. then we have to start ordercancel-process 
+
+OrderCancellationService:
+--------------------------
+	orderCancellationService.cancelOrder(order, buildCancellationEntries(order.getEntries(), bundleNo.intValue())
+
+TicketEventFactory:
+------------------
+
+
+TicketService:
+----------------
+1. getTicketsForOrder()
+	List<CsTicketModel> tickets= ticketService.getTicketsForOrder(orderModel);
+
+TicketBusinessService:
+-----------------------
+1.setTicketState() - Make ticket status as open
+	ticketBusinessService.setTicketState(ticket, CsTicketState.OPEN);
+2. resolveTicket()
+	ticketBusinessService.resolveTicket(csTicketModel, CsInterventionType.CALL, CsResolutionType.CLOSED, "cancelling the order ");
+3.
+	ticketBusinessService.setTicketState(csTicketModel, CsTicketState.OPEN)
+	
+TimeService:
+------------
+	timeService.getCurrentTime()
+
+CommonI18NService:
+------------------
+	commonI18NService.getLocaleForLanguage(LanguageModel languageModel)
+	
+MediaService:
+--------------
+---> to InputStream form Media Model
+	MediaModel tariffTable = servicePlanModel.getTariffTable();
+	InputStream stream = mediaService.getStreamFromMedia(tariffTable);
+	
+ApplicationLogger:
+------------------
+---> to print the loggers we will use this class
+	applicationLogger.omsApplicationDetails(CancelOrderCVAction.class, order.getCode(), "CANCEL ORDER PROCESS STARTED..");
+	
+---> the platform method is looking like this
+	public void omsApplicationDetails(@SuppressWarnings("rawtypes") Class class1, String orderNo, String msg){ 
+		LOGGER.info("OMS -  ORDER<"+ orderNo+ "> - Request<"+class1.getName()+"> - "+msg);
+	}
+	
+CMSSiteService:
+---------------
+
+
+FraudService:
+-------------
+	FraudServiceResponse response = fraudService.recognizeOrderSymptoms("getProviderName", order);
+	
+ServicesUtil:
+-------------
+1. validateParameterNotNull : to check parameters are null or not, if null it will print error that you pass.
+	ServicesUtil.validateParameterNotNull(order, "Order in process cannot be null");
+----> if order is null it will print print error by following code internally
+	throw new IllegalArgumentException(String.valueOf(errorMessage));
+	
+CatalogAwareEurope1PriceFactory:
+----------------------------------
+
+
+ExternalTaxesService:
+----------------------
+	externalTaxesService.calculateExternalTaxes(order);
+	
+PaymentService:
+----------------
+	paymentService.capture(paymentTransactionModel)
+	paymentService.refundFollowOn(paymentTransactionModel,amountToRefund)
+	
+	
+refundAmountCalculationService:
+--------------------------------
+	refundAmountCalculationService.calculateRefundAmount(returnRequestModel)
+
+TicketBusinessService:
+---------------------
+	ticketBusinessService.assignTicketToAgent(csTicketModel, employeeModel)
+	
+ticketAttributeChangeEventStrategy:
+------------------------------------
+	ticketAttributeChangeEventStrategy.getEntriesForChangedAttributes(csTicketModel)
+	
+TicketEventFactory:
+------------------
+	CsTicketEventModel event = ticketEventFactory.createEvent("ticketChangeEvent")
+	
+UserGroupDao:
+-------------
+	userGroupDao.findUserGroupByUid("groupName")
+	
+SessionService:
+--------------
+	String activeBackofficeRole = sessionService.getAttribute("cockpitActiveAuthorityGroup");
+	
+CronJobService:
+----------------
+
+	
+TicketService:
+----------------
+	 List<CsTicketEventModel> ticketEvents = ticketService.getEventsForTicket(ticketModel);
+	 
+LabelService:
+---------------
+
+TypeFacade:
+------------
+	String ticketType = typeFacade.getType(csTicketModel)
+	
+PropertyValueService:
+---------------------
+
+CockpitLocaleService:
+---------------------
+	cockpitLocaleService.getCurrentLocale()
+	
+PermissionFacade:
+------------------
+	permissionFacade.canReadInstanceProperty("type", "qualifier")
+	
+PermissionFacadeStrategy:
+------------------------
+	permissionFacadeStrategy.canReadType(string)
+	permissionFacadeStrategy.canChangeType(string)
+	permissionFacadeStrategy.canReadInstanceProperty(object, "")
+	permissionFacadeStrategy.canReadProperty(string, string1)
+	permissionFacadeStrategy.canChangeProperty(string, string1)
+	permissionFacadeStrategy.canCreateTypeInstance(string)
+	permissionFacadeStrategy.canRemoveInstance(object)
+	permissionFacadeStrategy.canReadInstance(object)
+	permissionFacadeStrategy.canChangeInstance(object)
+	permissionFacadeStrategy.canRemoveTypeInstance(string)
+	permissionFacadeStrategy.canChangeTypePermission(string)
+	permissionFacadeStrategy.canChangePropertyPermission(string, string)
+	permissionFacadeStrategy.getReadableLocalesForInstance(object)
+	permissionFacadeStrategy.getWritableLocalesForInstance(object)
+	permissionFacadeStrategy.getAllReadableLocalesForCurrentUser()
+	permissionFacadeStrategy.getAllWritableLocalesForCurrentUser()
+
+PermissionFacade:
+---------------------
+	permissionFacade.canChangeType("ticketType")
+
+	
+AuthorityGroupService:
+------------------------
+	AuthorityGroup activeAuthorityGroupForUser = authorityGroupService.getActiveAuthorityGroupForUser(currentUser.getUid())
+	
+WidgetInstanceFacade:
+----------------------
+	widgetInstanceFacade.removeWidgetInstance(currentWidgetInstance)
+	
+WidgetInstanceManager:
+----------------------
+	widgetInstanceManager().getWidgetslot()
+	
+EnumerationService:
+------------------
+	String localizedGirProperty = enumerationService.getEnumerationName( Object);
+	OrderStatus statusCode=enumerationService.getEnumerationValue("OrderStatus", status);
+	
+CockpitUserService:
+-------------------
+	cockpitUserService.getCurrentUser()
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+@Wire
+	private Listbox mainListBox;
+
+	@Wire
+	private Listhead mainListBoxHead;
+	
+	@Wire
+	private Listbox sourceDropDownListBox;
+	
+	@Wire
+	private Listbox targetDropDownListBox;
+	
+	@Wire
+	private Button searchBtn;
+
+	@Wire
+	private Button checkAllSection;
+
+	@Wire
+	private Button clearAllSection;
+	
+	@Wire
+	private Textbox orderCodeTxt;
+
+	@Wire
+	private Button applyChangesSection;
