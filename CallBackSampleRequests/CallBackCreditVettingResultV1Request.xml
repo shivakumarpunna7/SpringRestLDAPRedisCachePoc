@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://xmlns.vodafone.hu/BusinessMessage/VettingInterface/VettingService/V1.1" xmlns:v1="http://xmlns.vodafone.hu/BusinessMessage/VettingInterface/VettingService/V1.1" xmlns:v11="http://xmlns.vodafone.hu/TechnicalObject/Common/V1" xmlns:v12="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1" xmlns:v2="http://xmlns.vodafone.hu/BusinessObject/Customer/V2">
+   <soapenv:Header />
+   <soapenv:Body>
+      <v1:CallBackCreditVettingResultV1Request>
+         <Header xmlns="http://xmlns.vodafone.hu/TechnicalObject/Common/V1">
+            <TraceIdentifier>
+               <ApplicationId>Callisto</ApplicationId>
+               <CorrelationId>32c8fdac-fc3b-42cc-acf2-7e32febd8225</CorrelationId>
+               <IdentityId>687f3e59-a6fe-4189-8c24-921dfc70af29</IdentityId>
+               <ReferenceId>ca8d8449-f981-46c4-ab49-b84b27c311ca</ReferenceId>
+               <ServiceId>http://xmlns.vodafone.hu/BusinessService/VettingInterface/VettingService/callBackCreditVettingResultV1/V1</ServiceId>
+               <SenderTimestamp>2016-01-07T11:02:03.333+01:00</SenderTimestamp>
+            </TraceIdentifier>
+            <ClientTimeout>30</ClientTimeout>
+            <NameValue>
+               <Name>TargetSystem</Name>
+               <Value>HybrisWebshop</Value>
+            </NameValue>
+         </Header>
+         <VettingCorrelationId>18a0511e-9366-45f2-8a16-be69893b66be</VettingCorrelationId>
+         <CallistoReferenceNumber>7930585</CallistoReferenceNumber>
+         <VettingResponseID>15</VettingResponseID>
+         <Comment />
+         <MinLimit>0</MinLimit>
+         <MaxLimit>30</MaxLimit>
+         <SegmentInfo>
+            <SegmentCustomerTreatment xmlns="http://xmlns.vodafone.hu/BusinessObject/Customer/V2">SOHO</SegmentCustomerTreatment>
+            <SegmentReporting xmlns="http://xmlns.vodafone.hu/BusinessObject/Customer/V2">SOHO</SegmentReporting>
+            <SegmentCompanySize xmlns="http://xmlns.vodafone.hu/BusinessObject/Customer/V2">N/A</SegmentCompanySize>
+            <SegmentIndustrialSector xmlns="http://xmlns.vodafone.hu/BusinessObject/Customer/V2">N/A</SegmentIndustrialSector>
+         </SegmentInfo>
+         <TargetCustomerID>-1</TargetCustomerID>
+         <SubItemList>
+            <VettingResultSubitem xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">
+               <HybrisSubscriberId>1</HybrisSubscriberId>
+               <MSISDN>704585000</MSISDN>
+               <CreditingPeriod>0</CreditingPeriod>
+               <Result>CVA</Result>
+            </VettingResultSubitem>
+         </SubItemList>
+      </v1:CallBackCreditVettingResultV1Request>
+   </soapenv:Body>
+</soapenv:Envelope>

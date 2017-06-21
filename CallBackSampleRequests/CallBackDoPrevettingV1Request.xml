@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Body xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <CallBackDoPrevettingV1Request xmlns="http://xmlns.vodafone.hu/BusinessMessage/VettingInterface/VettingService/V1.0">
+         <Header xmlns="http://xmlns.vodafone.hu/TechnicalObject/Common/V1">
+            <TraceIdentifier>
+               <ApplicationId>Callisto</ApplicationId>
+               <CorrelationId>Manual</CorrelationId>
+               <IdentityId>Manual2</IdentityId>
+               <ReferenceId>Manual3</ReferenceId>
+               <ServiceId>http://xmlns.vodafone.hu/BusinessService/VettingInterface/VettingService/callBackDoPrevettingV1/V1</ServiceId>
+               <SenderTimestamp>2015-10-20T15:39:41.4086128+02:00</SenderTimestamp>
+            </TraceIdentifier>
+            <ClientTimeout>30</ClientTimeout>
+            <NameValue>
+               <Name>TargetSystem</Name>
+               <Value>Webshop</Value>
+            </NameValue>
+         </Header>
+         <ExternalRequestID>1445348366885395</ExternalRequestID>
+         <CustomerCheckStatus>1</CustomerCheckStatus>
+         <DandBResult>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <LastNegativeEvent xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</LastNegativeEvent>
+            <EventDescription xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</EventDescription>
+            <EventMessage xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</EventMessage>
+         </DandBResult>
+         <PreventelResult>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <WasHit xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</WasHit>
+            <PreventelState xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">00</PreventelState>
+            <Operator xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</Operator>
+            <PreventelDeposit xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</PreventelDeposit>
+         </PreventelResult>
+         <FraudResult>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <FraudState xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</FraudState>
+         </FraudResult>
+         <VipResult>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <VipState xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</VipState>
+         </VipResult>
+         <DebitResult>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <DebitState xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</DebitState>
+            <OverdueDebit xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0.00</OverdueDebit>
+            <FactoredDebit xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0.00</FactoredDebit>
+            <FactoredDebitDeposit xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0.00</FactoredDebitDeposit>
+         </DebitResult>
+         <CompanyResult>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <CheckState xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">1</CheckState>
+            <HqMatched xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">1</HqMatched>
+            <TaxNumberMatched xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">1</TaxNumberMatched>
+            <TradeRegisterNumberMatched xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">1</TradeRegisterNumberMatched>
+         </CompanyResult>
+         <BarringOfferResult>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <CheckState xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</CheckState>
+            <OfferId xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</OfferId>
+         </BarringOfferResult>
+         <MidcycleBillResult>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <CheckState xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">0</CheckState>
+         </MidcycleBillResult>
+         <DuplicateCustomerList />
+         <SegmentationBaseData>
+            <ResultDate xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">2015-10-20</ResultDate>
+            <DataState xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">3</DataState>
+            <TeaorNumber xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">12.25.65.4</TeaorNumber>
+            <Employees xmlns="http://xmlns.vodafone.hu/BusinessObject/Vetting/V1">-1</Employees>
+         </SegmentationBaseData>
+      </CallBackDoPrevettingV1Request>
+   </s:Body>
+</s:Envelope>

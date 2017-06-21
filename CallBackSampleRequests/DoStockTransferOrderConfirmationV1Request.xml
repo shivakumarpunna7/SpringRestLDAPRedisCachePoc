@@ -1,0 +1,43 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.vodafone.hu/BusinessMessage/ProductInterface/ProductService/V1.4" xmlns:v11="http://xmlns.vodafone.hu/TechnicalObject/Common/V1" xmlns:v4="http://xmlns.vodafone.hu/BusinessObject/Product/V4">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v1:DoStockTransferOrderConfirmationV1Request>
+         <v11:Header>
+            <v11:TraceIdentifier>
+               <v11:ApplicationId>HybrisWebshop</v11:ApplicationId>
+               <!--Optional:-->
+               <v11:CorrelationId>c2805992b-b72d-496e-b621-4fd7971dd0566</v11:CorrelationId>
+               <!--Optional:-->
+               <v11:IdentityId>DoStockSimulator</v11:IdentityId>
+               <v11:ReferenceId>Callisto-c2805992b-b72d-496e-b621-4fd7971dd0566</v11:ReferenceId>
+               <v11:ServiceId>http://xmlns.vodafone.hu/BusinessService/ProductInterface/ProductService/doStockTransferOrderConfirmationV1/V1</v11:ServiceId>
+               <v11:SenderTimestamp>2016-02-02T00:00:00+02:00</v11:SenderTimestamp>
+            </v11:TraceIdentifier>
+            <v11:ClientTimeout>100</v11:ClientTimeout>
+            <!--Zero or more repetitions:-->
+            <v11:NameValue>
+               <v11:Name>TargetSystem</v11:Name>
+               <v11:Value>callbackSystemId</v11:Value>
+            </v11:NameValue>
+         </v11:Header>
+         <!--Zero or more repetitions:-->
+         <v1:OrderList>
+            <!--Zero or more repetitions:-->
+            <v4:Order>
+               <v4:OrderId>00001158</v4:OrderId>
+               <v4:OrderItemList>
+                  <!--Zero or more repetitions:-->
+                  <v4:OrderItem>
+                     <v4:Materialcode>000000000104023791</v4:Materialcode>
+                     <v4:Quantity>1</v4:Quantity> 
+                  </v4:OrderItem>    
+                  <v4:OrderItem>
+                     <v4:Materialcode>000000000103004848</v4:Materialcode>
+                     <v4:Quantity>1</v4:Quantity> 
+                  </v4:OrderItem>                    
+               </v4:OrderItemList>
+            </v4:Order>
+         </v1:OrderList>
+      </v1:DoStockTransferOrderConfirmationV1Request>
+   </soapenv:Body>
+</soapenv:Envelope>

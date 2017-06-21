@@ -1,0 +1,88 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.vodafone.hu/BusinessMessage/VettingInterface/VettingService/V1.1" xmlns:v11="http://xmlns.vodafone.hu/TechnicalObject/Common/V1" xmlns:v3="http://xmlns.vodafone.hu/BusinessObject/Contact/V3" xmlns:v2="http://xmlns.vodafone.hu/BusinessObject/Contact/V2">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v1:CallBackCheckPersonalDataV2Request>
+         <v11:Header>
+            <v11:TraceIdentifier>
+               <!--type: string-->
+               <v11:ApplicationId>HybrisWebshop</v11:ApplicationId>
+               <!--Optional:-->
+               <!--type: string-->
+               <v11:IdentityId>GirinfoSimulator</v11:IdentityId>
+               <!--type: string-->
+               <v11:ReferenceId>Callisto-c2805992b-b72d-496e-b621-4fd7971dd0566</v11:ReferenceId>
+               <!--type: string-->
+               <v11:ServiceId>http://xmlns.vodafone.hu/BusinessService/VettingInterface/VettingService/callBackCheckPersonalDataV2/V1</v11:ServiceId>
+               <!--type: dateTime-->
+               <v11:SenderTimestamp>2016-02-02T00:00:00+02:00</v11:SenderTimestamp>
+            </v11:TraceIdentifier>
+            <!--type: integer-->
+            <v11:ClientTimeout>100</v11:ClientTimeout>
+            <!--Zero or more repetitions:-->
+            <v11:NameValue>
+               <!--type: string-->
+               <v11:Name>TargetSystem</v11:Name>
+               <!--type: string-->
+               <v11:Value>callbackSystemId</v11:Value>
+            </v11:NameValue>
+         </v11:Header>
+         <!--Zero or more repetitions:-->
+         <v11:CheckPoint>
+            <!--type: string-->
+            <v11:Name>teszt</v11:Name>
+            <!--type: CheckPointStatusType - enumeration: [Not reached,Completed,Timeout,Non recoverable error,Recoverable error]-->
+            <v11:Status>Completed</v11:Status>
+         </v11:CheckPoint>
+         <!--type: StringExactly14Type-->
+         <v1:TransactionId>TQP-0000049314</v1:TransactionId>
+         <!--Optional:-->
+         <!--type: int-->
+         <v1:CheckState>1</v1:CheckState>
+         <!--type: string-->
+         <v1:CheckMessage>Ellenorzés befejezve</v1:CheckMessage>
+         <!--Optional:-->
+         <v1:PersonalData>
+            <!--Optional:-->
+            <!--type: GenderType - enumeration: [F,M,U]-->
+            <v3:Gender>F</v3:Gender>
+            <!--Optional:-->
+            <!--type: string-->
+            <v3:Nationality>MAGYARORSZÁG ÁLLAMPOLGÁRA</v3:Nationality>
+            <v3:PersonName>
+               <!--Optional:-->
+               <!--type: string-->
+               <v3:LastName>Personal Idcard</v3:LastName>
+            </v3:PersonName>
+            <!--Optional:-->
+            <v3:PersonIdentificationData>
+               <!--Optional:-->
+               <!--type: string-->
+               <v3:BirthName>Personal Idcard</v3:BirthName>
+               <!--Optional:-->
+               <!--type: string-->
+               <v3:MotherName>Personal Mama</v3:MotherName>
+               <!--Optional:-->
+               <!--type: string-->
+               <v3:BirthPlace>Sopron</v3:BirthPlace>
+               <!--Optional:-->
+               <!--type: dateTime-->
+               <v3:BirthDate>1992-06-18T16:38:57+02:00</v3:BirthDate>
+               <v3:IdentityDocumentInfoList>
+                  <!--Zero or more repetitions:-->
+                  <v3:IdentityDocumentInfo>
+                     <!--Optional:-->
+                     <!--type: IdentityDocumentType - enumeration: [Driving licence,Foreign driving licence,Passport,ID card,Residence card,Student card,Address card,Social insurance card,Tax number]-->
+                     <v2:DocumentType>Passport</v2:DocumentType>
+                     <!--Optional:-->
+                     <!--type: string-->
+                     <v2:DocumentNumber>000007HU</v2:DocumentNumber>
+                  </v3:IdentityDocumentInfo>
+               </v3:IdentityDocumentInfoList>
+            </v3:PersonIdentificationData>
+            <!--Optional:-->
+            <v3:PrimaryContactingData>
+            </v3:PrimaryContactingData>
+         </v1:PersonalData>
+      </v1:CallBackCheckPersonalDataV2Request>
+   </soapenv:Body>
+</soapenv:Envelope>
