@@ -1,0 +1,27 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.vodafone.hu/BusinessMessage/ActivationInterface/ActivationService/V1.0" xmlns:v11="http://xmlns.vodafone.hu/TechnicalObject/Common/V1">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v1:SendActivationNotificationV1Request>
+         <v11:Header>
+            <v11:TraceIdentifier>
+               <v11:ApplicationId>SOAPUI</v11:ApplicationId>
+               <!--Optional:-->
+               <v11:CorrelationId>8161561313185</v11:CorrelationId>
+               <!--Optional:-->
+               <v11:IdentityId>bela.batka</v11:IdentityId>
+               <v11:ReferenceId>1561561561561813</v11:ReferenceId>
+               <v11:ServiceId>later will be added</v11:ServiceId>
+               <v11:SenderTimestamp>2016-12-12T12:12:12</v11:SenderTimestamp>
+               
+            </v11:TraceIdentifier>
+            <v11:ClientTimeout>60</v11:ClientTimeout>
+            
+         </v11:Header>
+         
+         <v1:MSISDN>701234567</v1:MSISDN>
+         <v1:ActivityType>CREQ</v1:ActivityType>
+         <v1:ActivityResult>COMPLETED</v1:ActivityResult>
+         <v1:ReasonCode>CREQ</v1:ReasonCode>
+      </v1:SendActivationNotificationV1Request>
+   </soapenv:Body>
+</soapenv:Envelope>

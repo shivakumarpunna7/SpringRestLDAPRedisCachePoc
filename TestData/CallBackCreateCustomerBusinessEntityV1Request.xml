@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+	<SOAP-ENV:Body>
+		<ns0:CallBackCreateCustomerBusinessEntityV1Request xmlns:ns0="http://xmlns.vodafone.hu/BusinessMessage/CustomerInterface/CustomerService/V1.9">
+			<ns1:Header xmlns:ns1="http://xmlns.vodafone.hu/TechnicalObject/Common/V1">
+				<ns1:TraceIdentifier>
+					<ns1:ApplicationId>SombreroTib</ns1:ApplicationId>
+					<ns1:CorrelationId>00000000000000000005</ns1:CorrelationId>
+					<ns1:IdentityId>IdentityId</ns1:IdentityId>
+					<ns1:ReferenceId>18508513</ns1:ReferenceId>
+					<ns1:ServiceId>http://xmlns.vodafone.hu/BusinessService/CustomerInterface/CustomerService/callBackCreateCustomerBusinessEntityV1/V1</ns1:ServiceId>
+					<ns1:SenderTimestamp>2016-03-30T14:08:02.29+02:00</ns1:SenderTimestamp>
+				</ns1:TraceIdentifier>
+				<ns1:ClientTimeout>120</ns1:ClientTimeout>
+				<ns1:NameValue>
+					<ns1:Name>TargetSystem</ns1:Name>
+					<ns1:Value>HybrisWebshop</ns1:Value>
+				</ns1:NameValue>
+				<ns1:NameValue>
+					<ns1:Name>callbackReferenceId</ns1:Name>
+					<ns1:Value>00000000000000000005</ns1:Value>
+				</ns1:NameValue>
+				<ns1:NameValue>
+					<ns1:Name>ParentRequestorSystem</ns1:Name>
+					<ns1:Value/>
+				</ns1:NameValue>
+			</ns1:Header>
+			<ns0:IntegrationCustomerId>9007506472</ns0:IntegrationCustomerId>
+			<ns0:IntegrationBillingAccountId>9007506473</ns0:IntegrationBillingAccountId>
+			<ns0:IntegrationBillingProfileId>9007506474</ns0:IntegrationBillingProfileId>
+			<ns0:AmdocsCustomerId>150</ns0:AmdocsCustomerId>
+		</ns0:CallBackCreateCustomerBusinessEntityV1Request>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

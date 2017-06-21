@@ -1,0 +1,46 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.vodafone.hu/BusinessMessage/ActivationInterface/ActivationService/V1.0" xmlns:v11="http://xmlns.vodafone.hu/TechnicalObject/Common/V1">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v1:CallBackDoPrepaidActivationV1Request>
+         <v11:Header>
+            <v11:TraceIdentifier>
+               <v11:ApplicationId>?</v11:ApplicationId>
+               <!--Optional:-->
+               <v11:CorrelationId>00000000000000002001</v11:CorrelationId>
+               <!--Optional:-->
+               <v11:IdentityId>?</v11:IdentityId>
+               <v11:ReferenceId>?</v11:ReferenceId>
+               <v11:ServiceId>?</v11:ServiceId>
+               <v11:SenderTimestamp>?</v11:SenderTimestamp>
+               <!--Optional:-->
+               <v11:SessionId>?</v11:SessionId>
+               <!--Zero or more repetitions:-->
+               <v11:GroupId>?</v11:GroupId>
+            </v11:TraceIdentifier>
+            <v11:ClientTimeout>?</v11:ClientTimeout>
+            <!--Zero or more repetitions:-->
+            <v11:NameValue>
+               <v11:Name>callbackReferenceId</v11:Name>
+               <v11:Value>00000000000000002001</v11:Value>
+            </v11:NameValue>
+         </v11:Header>
+         <!--Zero or more repetitions:-->
+         <v11:CheckPoint>
+            <v11:Name>?</v11:Name>
+            <v11:Status>?</v11:Status>
+            <!--Optional:-->
+            <v11:Content>?</v11:Content>
+         </v11:CheckPoint>
+         <!--Optional:-->
+         <v1:IntegrationCustomerId>?</v1:IntegrationCustomerId>
+         <!--Optional:-->
+         <v1:IntegrationBillingAccountId>?</v1:IntegrationBillingAccountId>
+         <!--Optional:-->
+         <v1:IntegrationBillingProfileId>?</v1:IntegrationBillingProfileId>
+         <!--Optional:-->
+         <v1:AmdocsCustomerId>123456</v1:AmdocsCustomerId>
+         <!--Optional:-->
+         <v1:AmdocsSubscriberId>444</v1:AmdocsSubscriberId>
+      </v1:CallBackDoPrepaidActivationV1Request>
+   </soapenv:Body>
+</soapenv:Envelope>

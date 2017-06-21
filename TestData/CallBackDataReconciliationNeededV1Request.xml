@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Header>
+      <ActivityId xmlns="http://schemas.microsoft.com/2004/09/ServiceModel/Diagnostics" CorrelationId="69f18078-2fb2-4b53-97fc-ad2f647bab18">61388618-1b95-4508-bf56-abc09e9c9227</ActivityId>
+   </s:Header>
+   <s:Body xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <CallBackDataReconciliationNeededV1Request xmlns="http://xmlns.vodafone.hu/BusinessMessage/VettingInterface/VettingService/V1.1">
+         <Header xmlns="http://xmlns.vodafone.hu/TechnicalObject/Common/V1">
+            <TraceIdentifier>
+               <ApplicationId>Callisto</ApplicationId>
+               <CorrelationId>89a310ba-e2b2-49ae-adac-b576477a5e5f</CorrelationId>
+               <IdentityId>dfced085-e32a-4e1a-8557-f43443d84f28</IdentityId>
+               <ReferenceId>73f45fb3-9831-4e56-b698-0490b5663437</ReferenceId>
+               <ServiceId>http://xmlns.vodafone.hu/BusinessService/VettingInterface/VettingService/callBackDataReconciliationNeededV1/V1</ServiceId>
+               <SenderTimestamp>2016-01-20T10:42:04.3962827+01:00</SenderTimestamp>
+            </TraceIdentifier>
+            <ClientTimeout>30</ClientTimeout>
+            <NameValue>
+               <Name>TargetSystem</Name>
+               <Value>HybrisWebshop</Value>
+            </NameValue>
+         </Header>
+         <VettingCorrelationId>eed03f93-c10f-4c20-b6c8-391b90774348</VettingCorrelationId>
+         <CallistoReferenceNumber>6343555</CallistoReferenceNumber>
+         <Comment>A megadott (Cím) nem tartozik az ügyfélhez</Comment>
+         <DataReconciliationType>CUSTOMER</DataReconciliationType>
+         <PersonalData>
+            <PersonName xmlns="http://xmlns.vodafone.hu/BusinessObject/Contact/V3">
+               <FirstName>ISTVÁN</FirstName>
+               <LastName>KIS</LastName>
+            </PersonName>
+            <PersonIdentificationData xmlns="http://xmlns.vodafone.hu/BusinessObject/Contact/V3">
+               <BirthName>Kis István</BirthName>
+               <MotherName>Anyu Neve</MotherName>
+               <BirthPlace>Tata</BirthPlace>
+               <BirthDate>1970-01-15T00:00:00+01:00</BirthDate>
+               <IdentityDocumentInfoList />
+            </PersonIdentificationData>
+            <AddressList xmlns="http://xmlns.vodafone.hu/BusinessObject/Contact/V3">
+               <AddressData>
+                  <Address>
+                     <City xmlns="http://xmlns.vodafone.hu/BusinessObject/Contact/V2">Budapest</City>
+                     <ZipCode xmlns="http://xmlns.vodafone.hu/BusinessObject/Contact/V2">1111</ZipCode>
+                     <StreetAddress xmlns="http://xmlns.vodafone.hu/BusinessObject/Contact/V2">
+                        <StreetName>Lágymányosi</StreetName>
+                        <StreetType>utca</StreetType>
+                        <Number>14</Number>
+                     </StreetAddress>
+                  </Address>
+                  <AddressRole>Permanent</AddressRole>
+               </AddressData>
+            </AddressList>
+         </PersonalData>
+      </CallBackDataReconciliationNeededV1Request>
+   </s:Body>
+</s:Envelope>

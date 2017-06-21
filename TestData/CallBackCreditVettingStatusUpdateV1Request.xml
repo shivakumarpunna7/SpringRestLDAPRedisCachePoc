@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.vodafone.hu/BusinessMessage/VettingInterface/VettingService/V1.1" xmlns:v11="http://xmlns.vodafone.hu/TechnicalObject/Common/V1">
+   <soapenv:Header />
+   <soapenv:Body>
+      <v1:CallBackCreditVettingStatusUpdateV1Request>
+         <v11:Header>
+            <v11:TraceIdentifier>
+               <v11:ApplicationId>SOAPUI</v11:ApplicationId>
+               <!--Optional:-->
+               <v11:CorrelationId>847987979789</v11:CorrelationId>
+               <!--Optional:-->
+               <v11:IdentityId>bela.batka</v11:IdentityId>
+               <v11:ReferenceId>212318648</v11:ReferenceId>
+               <v11:ServiceId>later</v11:ServiceId>
+               <v11:SenderTimestamp>2016-12-12T12:12:12</v11:SenderTimestamp>
+            </v11:TraceIdentifier>
+            <v11:ClientTimeout>60</v11:ClientTimeout>
+         </v11:Header>
+         <v1:VettingCorrelationId>548484</v1:VettingCorrelationId>
+         <v1:CallistoReferenceNumber>8489489498</v1:CallistoReferenceNumber>
+         <v1:StatusCode>S</v1:StatusCode>
+         <v1:Comment>Commentfield</v1:Comment>
+      </v1:CallBackCreditVettingStatusUpdateV1Request>
+   </soapenv:Body>
+</soapenv:Envelope>
